@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>Arlington Trees</title>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Roboto:wght@300&display=swap" rel="stylesheet">
+
+    <script src="js/jquery-3.2.1.min.js"></script>
+    <script src="js/jquery.csv.js"></script>
+    <script src="https://d3js.org/d3-color.v1.min.js"></script>
+<script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+      <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v1.11.0/mapbox-gl.js'></script>
+<link href='https://api.mapbox.com/mapbox-gl-js/v1.11.0/mapbox-gl.css' rel='stylesheet' />
+
+  <!-- Bootstrap core CSS -->
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="css/simple-sidebar.css" rel="stylesheet">
+
+
+
+</head>
+
+<style>
+  body { margin: 0; padding: 0; }
+ 
+</style>
+
+<body>
+
+  <div class="d-flex" id="wrapper">
+
+
+
+    <!-- Page Content -->
+    <div id="page-content-wrapper">
+
+          <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+       <a href="index.html"><img class="icon logo logo-smaller" src="assets/DKDC.png" width="180" alt="AMBFHL logo"></a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+             <li class="nav-item active">
+              <a class="nav-link" href="index.html">Home</a>
+            </li>
+            <li class="nav-item active">
+              <a class="nav-link" href="map.html">Tree Canopy and Demographics</a>
+            </li>
+               <li class="nav-item active">
+                  <a class="nav-link" href="about.html">About</a>
+            </li>        
+
+
+
+          </ul>
+        </div>
+      </nav>
+
+      <div class="container-fluid">
+        <h4 class="mt-4">Tree Canopy and Demographics</h4>
+
+<div class='map-overlay' id='features'>
+  <div id='pdhead'><p>Hover over a block-group to display data.</p></div>
+  <div id='pd' style='column-count: 2; column-fill: auto;'><p>Zoom in to display tree canopy and building footprints.</p></div>
+</div>
+
+
+ <div id='wrapper' style='width: 100%; height: 400px;'>
+  <div id='map' style='width: 100%; height: 400px;'></div>
+   
+
+<div class='map-overlay' id='legend'></div>
+</div>
+  
+          <div class="row">
+            <div class="col">
+              <table id='hotness_table' class="table cell-border table-bordered">
+                  <thead></thead>
+                  <tbody></tbody>
+              </table>        
+            </div>
+          </div>
+       
+      </div>
+    </div>
+    <!-- /#page-content-wrapper -->
+
+  </div>
+  <!-- /#wrapper -->
+
+  <!-- Bootstrap core JavaScript -->
+
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+<div id="map"></div>
+<script>
+  mapboxgl.accessToken = 'pk.eyJ1IjoiZWFwdHNkIiwiYSI6ImNrYm9mY2lpMjBkejMydWp5dTZ0ano0eXkifQ.ZyAbgbljrzb7qiRXKo7Ysg';
+  var map = new mapboxgl.Map({
+  container: 'map', // container id
+  style: 'mapbox://styles/eaptsd/cjfrcle255y2j2squ8qa47msm', // stylesheet location
+  center: [-77.10937,38.879556], // starting position [lng, lat]
+  minZoom: 10.95,
+  maxZoom: 18,
+  zoom: 10.95// starting zoom
+});
+
+  map.on('load', function() {
+map.addSource('blocks', {
+type: 'vector',
+url: 'mapbox://eaptsd.74vnaz5b'
+});
+
+map.addSource('canopy', {
+type: 'vector',
+url: 'mapbox://eaptsd.887oloz0'
+});
+
+map.addSource('buildings', {
+type: 'vector',
+url: 'mapbox://eaptsd.0ccwwtkv'
+});
+
+map.addLayer({
+'id': 'blocks',
+'type': 'fill',
+'source':'blocks',
+'source-layer': 'TreeData-a8dsgv',
+'layout': {},
+'paint': {
+"fill-color": ["step",["get","race_pct_nonwhitenh"],
+  "#ffffff",0,
+  "#ffe6f0",.10,
+  "#ffcce1",.20,
+  "#ffb3d2",.3,
+  "#ff99c4",.4,
+  "#ff80b5",.5,
+  "#ff66a6",.6,
+  "#ff4d97",.7,
+    "#ff4996",.8,
+      "#ff4d97",.9,
+  '#ff3388'],
+'fill-opacity': 0.6
+}
+},
+            'waterway-label');
+
+
+map.setPaintProperty('blocks', 'fill-opacity', [
+'interpolate',
+['exponential', 0.5],
+['zoom'],
+10.95,
+.8,
+14,
+.3,
+18,
+.1
+]);
+
+map.addLayer({
+'id': 'buildings',
+'type': 'fill',
+'source':'buildings',
+'source-layer': 'buildings-0n4l13',
+'minzoom':15,
+'layout': {},
+'paint': {
+"fill-color": '#696969',
+'fill-opacity': .5
+}
+},
+            'waterway-label');
+
+map.addLayer({
+'id': 'canopy',
+'type': 'fill',
+'source':'canopy',
+'source-layer': 'Canopy-Data-ddfdrl',
+'layout': {},
+'paint': {
+"fill-color": '#014421',
+'fill-opacity': .5
+}
+},
+            'waterway-label');
+
+
+
+
+
+var layers = ['Tree Canopy','Buildings','% Non-White','0-10%', '10-20%', '20-30%', '30-40%', '40-50%', '50-60%', '60-70%', '70-80%','80-90%','90-100%'];
+var colors = ['#014421','#696969','none',"#ffe6f0","#ffcce1","#ffb3d2","#ff99c4","#ff80b5","#ff66a6","#ff4d97","#ff4996","#ff4d97",'#ff3388'];
+
+for (i = 0; i < layers.length; i++) {
+  var layer = layers[i];
+  var color = colors[i];
+  var item = document.createElement('div');
+  var key = document.createElement('span');
+  key.className = 'legend-key';
+  key.style.backgroundColor = color;
+
+  var value = document.createElement('span');
+  value.innerHTML = layer;
+  item.appendChild(key);
+  item.appendChild(value);
+  legend.appendChild(item);
+}
+
+map.on('mousemove', function(e) {
+  var blocks = map.queryRenderedFeatures(e.point, {
+    layers: ['blocks']
+  });
+
+
+
+  if (blocks.length > 0) {
+    document.getElementById('pdhead').innerHTML = '<h6><strong>' + blocks[0].properties["NAME.x"] +' (Population ' + d3.format(",")(blocks[0].properties.tot_population_race) +')</strong></h6>';
+  } else {
+    document.getElementById('pdhead').innerHTML = '<p>Hover over a block-group to display data.</p>';
+  }
+
+  if (blocks.length > 0) {
+    document.getElementById('pd').innerHTML = '<p><strong><em>' +  d3.format(".0%")(blocks[0].properties.race_pct_nonwhitenh) + '</strong> Non-White</em><br><strong><em>' +  d3.format(".0%")(blocks[0].properties.inc_pct_poverty) + '</strong> Below Poverty Line</em><br><strong><em>' +  d3.format(".0%")(blocks[0].properties.PercentCanopy) + '</strong> Tree Canopy</em><br><strong><em>' +  d3.format(".0%")(blocks[0].properties.PercentOpen) + '</strong> Open Space</em></p>';
+  } else {
+    document.getElementById('pd').innerHTML = '<p>Zoom in to display tree canopy and building footprints.</p>';
+  }
+});
+
+});
+
+
+</script>
+
+  <script>
+
+// set the dimensions and margins of the graph
+var margin = {top: 10, right: 30, bottom: 40, left: 80},
+    width = 400 - margin.left - margin.right,
+    height = 350 - margin.top - margin.bottom;
+
+// append the svg object to the body of the page
+var svg = d3.select("#my_dataviz")
+  .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+// Parse the Data
+d3.csv("hotness.csv", function(data) {
+
+// sort data
+data.sort(function(b, a) {
+  return b.Wk6 - a.Wk6;
+});
+
+// Add X axis
+var x = d3.scaleLinear()
+  .domain([0, 13])
+  .range([ 0, width]);
+svg.append("g")
+  .attr("transform", "translate(0," + height + ")")
+  .call(d3.axisBottom(x))
+  .selectAll("text")
+    .attr("transform", "translate(-10,0)rotate(-45)")
+     .attr("class", "axis-label")
+    .style("text-anchor", "end");
+
+// Y axis
+var y = d3.scaleBand()
+  .range([ 0, height ])
+  .domain(data.map(function(d) { return d.Name; }))
+  .padding(1);
+svg.append("g")
+  .call(d3.axisLeft(y)) .selectAll("text")
+    .attr("transform", "translate(-10,0)")
+        .attr("class", "axis-label")
+    .style("text-anchor", "end");
+
+var myColor = d3.scaleSequential(d3.interpolatePlasma).domain([12,1]);
+var lineColor = d3.scaleSequential(d3.interpolateRdYlGn).domain([-3,3]);
+
+// Lines
+svg.selectAll("myline")
+  .data(data)
+  .enter()
+  .append("line")
+    .attr("class","lollipop")
+    .attr("x1", function(d) { return x(d.Wk5); })
+    .attr("x2", function(d) { return x(d.Wk5); })
+    .attr("y1", function(d) { return y(d.Name); })
+    .attr("y2", function(d) { return y(d.Name); })
+    .attr("stroke", "grey")
+
+
+
+// Circles -> start at X=0
+svg.selectAll("mycircle")
+  .data(data)
+  .enter()
+  .append("circle")
+    .attr("cx", function(d) { return x(d.Wk5); })
+    .attr("cy", function(d) { return y(d.Name); })
+    .attr("r", "10")
+    .style("fill", "#fff")
+    .attr("stroke", "black")
+
+
+  // Circles -> start at X=0
+svg.selectAll("mylabels")
+  .data(data)
+  .enter()
+  .append("text")
+    .attr("x", function(d) { return x(d.Wk5); })
+    .attr("y", function(d) { return y(d.Name)+5; })
+    .attr("class","label")
+    .style("opacity",0)
+    .text(function(d) { return d.Wk6; }); 
+  
+
+// Change the X coordinates of line and circle
+svg.selectAll("circle")
+  .transition()
+  .duration(2000)
+  .attr("cx", function(d) { return x(d.Wk6); })
+  .style("fill", function(d){return myColor(d.Wk6);})
+
+svg.selectAll(".lollipop")
+  .transition()
+  .duration(2000)
+  .attr("x1", function(d) { return x(d.Wk6); })
+  .attr("stroke", function(d) { return lineColor(d.Change); })
+
+svg.selectAll("text")
+  .transition()
+  .duration(2000)
+  .style("opacity",1)
+  .attr("x", function(d) { if (d.Change<0) {return x(d.Wk6)+15; }
+    else{return x(d.Wk6)-36;}
+
+})
+})
+
+
+
+
+
+
+
+
+
+
+
+</script>
+
+  <!-- Menu Toggle Script -->
+  <script>
+    $("#menu-toggle").click(function(e) {
+      e.preventDefault();
+      $("#wrapper").toggleClass("toggled");
+    });
+  </script>
+
+</body>
+
+</html>

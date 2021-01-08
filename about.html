@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>Arlington Trees</title>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Roboto:wght@300&display=swap" rel="stylesheet">
+
+    <script src="js/jquery-3.2.1.min.js"></script>
+    <script src="js/jquery.csv.js"></script>
+    <script src="https://d3js.org/d3-color.v1.min.js"></script>
+<script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+      <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v1.11.0/mapbox-gl.js'></script>
+<link href='https://api.mapbox.com/mapbox-gl-js/v1.11.0/mapbox-gl.css' rel='stylesheet' />
+
+  <!-- Bootstrap core CSS -->
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="css/simple-sidebar.css" rel="stylesheet">
+
+
+
+</head>
+
+<style>
+  body { margin: 0; padding: 0; }
+ 
+</style>
+
+<body>
+
+  <div class="d-flex" id="wrapper">
+
+
+
+    <!-- Page Content -->
+    <div id="page-content-wrapper">
+
+          <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+       <a href="index.html"><img class="icon logo logo-smaller" src="assets/DKDC.png" width="180" alt="AMBFHL logo"></a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+             <li class="nav-item active">
+              <a class="nav-link" href="index.html">Home</a>
+            </li>
+            <li class="nav-item active">
+              <a class="nav-link" href="map.html">Tree Canopy and Demographics</a>
+            </li>
+               <li class="nav-item active">
+                  <a class="nav-link" href="about.html">About</a>
+            </li>        
+
+
+
+          </ul>
+        </div>
+      </nav>
+
+      <div class="container-fluid">
+        <h4 class="mt-4">About</h4>
+        <h6>Data</h6>
+        <p>This site uses data from two sources:
+          <ul>
+            <li>Arlington County's <a href="https://gisdata-arlgis.opendata.arcgis.com/" target="_blank">open data portal</a>. Tree Canopy data is available <a href="https://gisdata-arlgis.opendata.arcgis.com/datasets/tree-canopy-2016" target="_blank">here</a> and building footprints are available <a href="https://gisdata-arlgis.opendata.arcgis.com/datasets/building-polygons" target="_blank">here</a>.</li>
+            <li>Population, race, and incoome date are from the US Census Bureau's <a href="https://gisdata-arlgis.opendata.arcgis.com/datasets/building-polygons" target="_blank">American Community Surevy</a> (2014-2018 5 year estimates).</li>
+            <li>The basemap was built by <a href="https://www.mapbox.com/about/maps/" target="_blank">Mapbox</a> using data from <a href="https://www.openstreetmap.org/about/" target="_blank">OpenStreetMap</a>.</li></ul>
+          </p>
+        <h6>Methodology</h6>
+         <ul>
+            <li>ACS data at a block group level was obtained using the R package<a href="https://github.com/walkerke/tidycensus" target="_blank"> tidycensus</a>. Block group geometry was also downloaded in this process. Tree Canopy and building footprint data shapefiles were manually downloaded from Arlignton County's <a href="https://gisdata-arlgis.opendata.arcgis.com/" target="_blank">open GIS portal</a>.</li>
+            <li>Areas of tree canopy and building footprints withing each census block were calculated using the R package <a href="https://r-spatial.github.io/sf/articles/sf1.html" target="_blank">simple features</a>. The area calculations were joined back to the census block geometry and together exported to a topojson file using the R package <a href="https://geojson.io/" target="_blank">geojsonio</a>.</li>
+            <li>The three polygon layers (census blocks with associated data, tree canopy, and building footprints) were uploaded to <a href="https://studio.mapbox.com/" target="_blank">Mapbox Studio</a>, then displayed and styled for the web using <a href="https://docs.mapbox.com/mapbox-gl-js/api/" target="_blank">Mapbox GL</a>.</li></ul>
+
+
+
+
+
+
+      </div>
+    </div>
+    <!-- /#page-content-wrapper -->
+
+  </div>
+  <!-- /#wrapper -->
+
+  <!-- Bootstrap core JavaScript -->
+
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+
+
+  <!-- Menu Toggle Script -->
+  <script>
+    $("#menu-toggle").click(function(e) {
+      e.preventDefault();
+      $("#wrapper").toggleClass("toggled");
+    });
+  </script>
+
+</body>
+
+</html>

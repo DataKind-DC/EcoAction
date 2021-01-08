@@ -1,0 +1,148 @@
+/*!
+ * Start Bootstrap - Simple Sidebar (https://startbootstrap.com/template-overviews/simple-sidebar)
+ * Copyright 2013-2019 Start Bootstrap
+ * Licensed under MIT (https://github.com/BlackrockDigital/startbootstrap-simple-sidebar/blob/master/LICENSE)
+ */
+
+
+
+body,p, ul {
+  overflow-x: hidden;
+  font-family: 'Roboto', sans-serif;
+  font-size: .9em;
+}
+
+h1,h2,h3,h4,h5,h6{
+  font-family: 'Archivo Black', sans-serif;
+}
+
+
+a.mapboxgl-ctrl-logo{
+    display: none !important;
+}
+
+.map-overlay {
+  
+  background: rgba(255, 255, 255, .9);
+  margin-right: 20px;
+  font-family: Arial, sans-serif;
+  overflow: auto;
+  border-radius: 3px;
+}
+
+#features {
+  top: 0;
+  height: 104px;
+  margin-top: 20px;
+}
+
+#wrapper {
+position: relative;
+}
+
+
+#legend {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  padding: 10px;
+  line-height: 18px;
+  height: 255px;
+  margin-bottom: 00px;
+  width: 97px;
+  font-size: .65em;
+}
+
+.legend-key {
+  display: inline-block;
+  border-radius: 20%;
+  width: 7px;
+  height: 7px;
+  margin-right: 5px;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #505050;
+    border-color: #505050;
+    border-radius: 25px;
+}
+
+.btn-primary:hover {
+    color: #fff;
+    background-color: #989898;
+    border-color: #989898;
+}
+.table-responsive{
+  max-width: 600px;
+}
+
+.label{
+  font-size: .75em;
+   font-family: 'Roboto', sans-serif;
+}
+
+.axis-label{
+  font-size: 1.2em;
+   font-family: 'Roboto', sans-serif;
+}
+.btn-primary:focus {
+    color: #fff;
+    background-color: #989898;
+    border-color: #989898;
+}
+
+.btn-primary:not(:disabled):not(.disabled).active, .btn-primary:not(:disabled):not(.disabled):active, .show>.btn-primary.dropdown-toggle {
+    color: #fff;
+    background-color: #989898;
+    border-color: #989898;
+}
+
+
+
+.border-right {
+    border-right: 1px solid #dee2e6!important;
+}
+
+#sidebar-wrapper {
+  min-height: 100vh;
+  margin-left: -15rem;
+  -webkit-transition: margin .25s ease-out;
+  -moz-transition: margin .25s ease-out;
+  -o-transition: margin .25s ease-out;
+  transition: margin .25s ease-out;
+}
+
+
+
+#sidebar-wrapper .sidebar-heading {
+  padding: 0.875rem 1.25rem;
+  font-size: 1.2rem;
+}
+
+#sidebar-wrapper .list-group {
+  width: 15rem;
+}
+
+#page-content-wrapper {
+  min-width: 100vw;
+}
+
+#wrapper.toggled #sidebar-wrapper {
+  margin-left: 0;
+}
+
+@media (min-width: 768px) {
+  #sidebar-wrapper {
+    margin-left: 0;
+  }
+
+  #page-content-wrapper {
+    min-width: 0;
+    width: 100%;
+  }
+
+  #wrapper.toggled #sidebar-wrapper {
+    margin-left: -15rem;
+  }
+}
