@@ -55,7 +55,7 @@ acs <- tidyr::spread(acs, key = "variable", value = "estimate")
 
 # Rename acs variables to hooman understandable names
 acs <- dplyr::rename(acs, tidyselect::all_of(dem_vars))
-acs <- dplyr::rename(acs, c("geo_id" = "GEOID"))
+acs <- dplyr::rename(acs, c("cbg_id" = "GEOID"))
 
 # Calculate percentages
 acs <- dplyr::mutate(
@@ -86,17 +86,16 @@ int <- tibble::as_tibble(int) # TODO: Is this needed?
 int$area_int <- sf::st_area(int$geometry) # Units of m^2
 
 tmp <- int %>% # TODO: Clean this up, tmp vars are not great
-  dplyr::group_by(FULLBLOCKG) %>%
+  dplyr::group_by(cbg_id) %>%
   dplyr::summarise(area_canopy = sum(area_int))
 
 # TODO: Clean up below and add comments
 cbg <- tibble::as_tibble(cbg)
-cbg <- dplyr::left_join(cbg, tmp, by = 'FULLBLOCKG')
+cbg <- dplyr::left_join(cbg, tmp, by = 'cbg_id')
 cbg$area <- sf::st_area(cbg$geometry)
 cbg <- dplyr::mutate(cbg, pct_canopy = area_canopy / area)
-cbg <- dplyr::rename(cbg, c("geo_id" = "FULLBLOCKG"))
-cbg <- dplyr::select(cbg, c("geo_id", "area", "area_canopy", "pct_canopy"))
-comb <- dplyr::left_join(acs, cbg, by = "geo_id")
+cbg <- dplyr::select(cbg, c("cbg_id", "area", "area_canopy", "pct_canopy"))
+comb <- dplyr::left_join(acs, cbg, by = "cbg_id")
 
 write.csv(comb, "data/demographics_and_canopy.csv", row.names = FALSE)
 

@@ -1,9 +1,10 @@
 library(dplyr)
 library(sf)
+library(sp)
 library(readr)
 
 # Read csv files ---------------------------------------------------------------
-read_demo_can <- function() {
+read_demo_canopy <- function() {
   # TODO: ADd doc string
   readr::read_csv(
     file = "data/demographics_and_canopy.csv",
@@ -12,9 +13,9 @@ read_demo_can <- function() {
     ))
 }
 
-read_demo_can.subset <- function() {
+read_demo_canopy_subset <- function() {
   dplyr::select(
-    read_demo_can(),
+    read_demo_canopy(),
     "geo_id",
     "pct_nonwhite",
     "pct_canopy"
@@ -45,18 +46,24 @@ read_tree_data <- function() {
       lat = col_double(),
       long = col_double()
     )
-  )
+  ) %>%
+    sf::st_as_sf(
+      coords = c("long", "lat"),
+      crs = "+proj=longlat +datum=WGS84 +no_defs",
+      agr = "constant",
+      stringsAsFactors = FALSE,
+      remove = TRUE
+    )
 }
 
-read_tree_data.subset <- function() {
+read_tree_data_subset <- function() {
   dplyr::select(
     read_tree_data(),
     "year",
     "tree_count",
     "tree_name",
     "scientific_name",
-    "lat",
-    "long",
+    "geometry",
   )
 }
 
@@ -66,9 +73,7 @@ read_tree_data.subset <- function() {
 read_shp_file <- function(file_path) {
   # TODO: Add doc string.
   sf::st_read(file_path) %>%
-    sf::st_transform(
-      crs = 3857,
-      proj4string = "+proj=longlat +datum=WGS84 +no_defs") %>%
+    sf::st_transform(sp::CRS("+proj=longlat +datum=WGS84 +no_defs")) %>%
     sf::st_make_valid() # TODO: Is this necessary?
 }
 
@@ -79,12 +84,16 @@ read_canopy_shp <- function() {
 read_cbg_shp <- function() {
   # TODO: Add doc string
   cbg <- read_shp_file("data/shape_files/Census_Block_Groups_2010_Polygons")
-  cbg[, (names(cbg) %in% c("FULLBLOCKG", "geometry"))]
+  cbg <- cbg[, (names(cbg) %in% c("FULLBLOCKG", "geometry"))]
+  colnames(cbg) <- c("cbg_id", "geometry")
+  cbg
 }
 
 read_civ_assoc_shp <- function() {
   ca <- read_shp_file("data/shape_files/Civic_Association_Polygons")
-  ca[, (names(ca) %in% c("CIVIC", "COLOR", "GIS_ID", "geometry"))]
+  ca <- ca[, (names(ca) %in% c("CIVIC", "GIS_ID", "geometry"))]
+  colnames(ca) <- c("civ_name", "civ_id", "geometry")
+  ca
 }
 
 
