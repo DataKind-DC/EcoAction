@@ -6,11 +6,11 @@ library(tidyverse)
 library(tidycensus)
 library(sf)
 
+source("src/load_data.R")
+
 # BEFORE RUNNING THIS SCRIPT ---------------------------------------------------
-# 1. Unzip data/shape_files/Tree_Canopy_2016_Polygons.zip
-# 2. Unzip data/shape_files/Census_Block_Groups_2010_Polygons.zip
-# 2. Get a census apikey from https://api.census.gov/data/key_signup.html
-# 3. Insert apikey into the line below, run the line, and restart R
+# 1. Get a census apikey from https://api.census.gov/data/key_signup.html
+# 2. Insert apikey into the line below, run the line, and restart R
 # census_api_key(key="<insert_key_here>", install=TRUE, overwrite = TRUE)
 
 
@@ -77,17 +77,8 @@ acs <- dplyr::mutate(
 
 # Calculate Tree Canopy Percentage ---------------------------------------------
 
-read_shape_file <- function(file_path) {
-  # TODO: Add doc string. Maybe put in separate file?
-  shp <- sf::st_read(file_path) %>%
-    sf::st_transform(
-      crs = 3857,
-      proj4string = "+proj=longlat +datum=WGS84 +no_defs") %>%
-    sf::st_make_valid() # TODO: Is this necessary?
-}
-
-canopy <- read_shape_file("data/shape_files/Tree_Canopy_2016_Polygons")
-cbg <- read_shape_file("data/shape_files/Census_Block_Groups_2010_Polygons")
+canopy <- read_canopy_shp()
+cbg <- read_cbg_shp()
 
 int <- sf::st_intersection(canopy, cbg)
 int <- tibble::as_tibble(int) # TODO: Is this needed?
@@ -105,7 +96,7 @@ cbg$area <- sf::st_area(cbg$geometry)
 cbg <- dplyr::mutate(cbg, pct_canopy = area_canopy / area)
 cbg <- dplyr::rename(cbg, c("geo_id" = "FULLBLOCKG"))
 cbg <- dplyr::select(cbg, c("geo_id", "area", "area_canopy", "pct_canopy"))
-comb <- dplyr::left_join(acs, cbg, by = 'geo_id')
+comb <- dplyr::left_join(acs, cbg, by = "geo_id")
 
 write.csv(comb, "data/demographics_and_canopy.csv", row.names = FALSE)
 
