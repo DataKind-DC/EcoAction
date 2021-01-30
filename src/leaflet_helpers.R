@@ -1,7 +1,7 @@
 library(leaflet)
 library(htmlwidgets)
 
-quick_map <- function(sf_df, file_name) {
+quick_map <- function(sf_df, file_prefix) {
   # TODO: docstring
   lf <- leaflet::leaflet(sf_df) %>%
     leaflet::addProviderTiles("CartoDB.Positron") %>%
@@ -11,8 +11,8 @@ quick_map <- function(sf_df, file_name) {
       opacity = 1.0,
       fillOpacity = 0.5
     )
-
-  htmlwidgets::saveWidget(lf, file = file_name)
-  print(paste("Saved map to", file_name))
+  file <- paste("maps/", file_prefix, ".html", sep="")
+  htmlwidgets::saveWidget(lf, file = file)
+  print(paste("Saved map to", file))
 }
 
