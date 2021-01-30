@@ -1,1 +1,7 @@
 node_modules
+
+# propietary/unpacked data
+data/shape_files/Geos/
+data/shape_files/Land_Types/
+data/shape_files/Tree_Canopy
+data/tree_data_consolidated - trees.csv
