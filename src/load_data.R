@@ -3,7 +3,11 @@ library(sf)
 library(sp)
 library(readr)
 
+
+################################################################################
 # Read csv files ---------------------------------------------------------------
+################################################################################
+
 read_demography <- function(geography) {
   # TODO: ADd doc string
   if (!(geography %in% c("block_group", "tract"))) {
@@ -59,6 +63,7 @@ read_tree_data_subset <- function() {
   )
 }
 
+
 ################################################################################
 # Read shp (shape) files -------------------------------------------------------
 ################################################################################
@@ -72,12 +77,18 @@ read_shp_file <- function(file_path) {
 
 
 # READ SHAPE FILES FROM data/shape_files/Geos ---------------------------
+# TODO: make this function
+# sort_and_reset_index <- function(df, sort_on) {
+#   df <- df[order(df$sort_on)] # Ugh. R.
+# }
 
 read_geos_block_group <- function() {
   # TODO: Add doc string
   cbg <- read_shp_file("data/shape_files/Geos/Census_Block_Groups_2010_Polygons")
   cbg <- cbg[, (names(cbg) %in% c("FULLBLOCKG", "geometry"))]
   colnames(cbg) <- c("geo_id", "geometry")
+  cbg <- cbg[order(cbg$geo_id), ]
+  row.names(cbg) <- NULL
   cbg
 }
 
@@ -86,6 +97,8 @@ read_geos_tract <- function() {
   tract <- read_shp_file("data/shape_files/Geos/Census_Tract_2010_Polygons")
   tract <- tract[, (names(tract) %in% c("FULLTRACTI", "geometry"))]
   colnames(tract) <- c("geo_id", "geometry")
+  tract <- tract[order(tract$geo_id), ]
+  row.names(tract) <- NULL
   tract
 }
 
@@ -93,6 +106,8 @@ read_geos_civ_assoc <- function() {
   ca <- read_shp_file("data/shape_files/Geos/Civic_Association_Polygons")
   ca <- ca[, (names(ca) %in% c("CIVIC", "GIS_ID", "geometry"))]
   colnames(ca) <- c("civ_name", "civ_id", "geometry")
+  ca <- ca[order(ca$civ_name), ]
+  row.names(ca) <- NULL
   ca
 }
 
