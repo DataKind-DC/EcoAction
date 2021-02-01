@@ -13,10 +13,18 @@ to join the project!
 ## Getting Started
 After getting access to the google drive folder, clone this repo to your local environment. Then do the following:
 
-1. Unzip the zip files in `EcoAction/data/shape_files/`
-1. Download ***EcoAction Arlington/Data/Trees_Planted/tree_data_consolidated - trees.csv*** 
-   from Google Drive and place it in `EcoAction/data/` on your local.
+1. Run `scripts/prep_initial_data.R` with R
+    - **NOTE:** Requires the `googledrive` package and API authentication (will ask for password on first run)
+    - This downloads ***EcoAction Arlington/Data/Trees_Planted/tree_data_consolidated - trees.csv*** to the `data` directory and unpacks the zip files in `data/shape_files`
 1. Set `EcoAction` as the working directory in whatever IDE you are using.
+
+_Manual approach (without R)_
+1. Unzip the zip files in `data/shape_files/`
+    - **NOTE:** Windows users should ensure the destination is `data/shape_files` (or nested directories will be created)
+1. Download ***EcoAction Arlington/Data/Trees_Planted/tree_data_consolidated - trees.csv***
+from Google Drive and place it in `EcoAction/data/` on your local.
+1. Set `EcoAction` as the working directory in whatever IDE you are using.
+
 
 ## Repo Structure
 ### archive/
