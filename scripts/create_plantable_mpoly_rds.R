@@ -11,7 +11,6 @@
 library(sf)
 
 source("src/load_data.R")
-source("src/sf_helpers.R")
 source("src/leaflet_helpers.R")
 
 zones_sf <- read_land_zoning()
