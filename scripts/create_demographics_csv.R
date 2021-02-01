@@ -80,6 +80,9 @@ create_demographics_csv <- function(geography, file_name) {
     pct_in_poverty = pop_in_poverty / tot_pop_income * 100,
   )
 
+  # Fill nans with 0
+  acs_df[is.na(acs_df)] <- 0
+
   write.csv(acs_df, file_name, row.names = FALSE)
   print(paste("Wrote ACS 5-yr data data to", file_name))
 }
