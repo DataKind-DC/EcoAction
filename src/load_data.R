@@ -8,11 +8,15 @@ library(readr)
 # Read csv files ---------------------------------------------------------------
 ################################################################################
 
-read_demography <- function(geography) {
-  # TODO: ADd doc string
+check_geography <- function(geography) {
   if (!(geography %in% c("block_group", "tract"))) {
     stop("`geography` must be either 'block_group' or 'tract'")
   }
+}
+
+read_demography_csv <- function(geography) {
+  # TODO: ADd doc string
+  check_geography(geography)
   file <- paste("data/demographics_", geography, ".csv", sep = "")
   readr::read_csv(
     file = file,
@@ -28,6 +32,17 @@ read_demography_subset <- function(geography) {
     "pct_nonwhite",
     "pct_in_poverty"
   )
+}
+
+read_land_area_csv <- function(geography) {
+  # TODO: Add doc string
+  check_geography(geography)
+  file <- paste("data/land_area_", geography, ".csv", sep = "")
+  readr::read_csv(
+    file = file,
+    col_types = readr::cols(
+      geo_id = col_character()
+    ))
 }
 
 read_tree_data <- function() {
@@ -87,7 +102,7 @@ read_geos_block_group <- function() {
   cbg <- read_shp_file("data/shape_files/Geos/Census_Block_Groups_2010_Polygons")
   cbg <- cbg[, (names(cbg) %in% c("FULLBLOCKG", "geometry"))]
   colnames(cbg) <- c("geo_id", "geometry")
-  cbg <- cbg[order(cbg$geo_id), ]
+  cbg <- cbg[order(cbg$geo_id),]
   row.names(cbg) <- NULL
   cbg
 }
@@ -97,7 +112,7 @@ read_geos_tract <- function() {
   tract <- read_shp_file("data/shape_files/Geos/Census_Tract_2010_Polygons")
   tract <- tract[, (names(tract) %in% c("FULLTRACTI", "geometry"))]
   colnames(tract) <- c("geo_id", "geometry")
-  tract <- tract[order(tract$geo_id), ]
+  tract <- tract[order(tract$geo_id),]
   row.names(tract) <- NULL
   tract
 }
@@ -106,7 +121,7 @@ read_geos_civ_assoc <- function() {
   ca <- read_shp_file("data/shape_files/Geos/Civic_Association_Polygons")
   ca <- ca[, (names(ca) %in% c("CIVIC", "GIS_ID", "geometry"))]
   colnames(ca) <- c("civ_name", "civ_id", "geometry")
-  ca <- ca[order(ca$civ_name), ]
+  ca <- ca[order(ca$civ_name),]
   row.names(ca) <- NULL
   ca
 }
@@ -166,6 +181,25 @@ read_land_sidewalks <- function() {
 read_land_zoning <- function() {
   read_shp_file("data/shape_files/Land_Types/Zoning_Polygons")
 }
+
+
+################################################################################
+# Aggregating functions --------------------------------------------------------
+################################################################################
+
+load_geo_data_for_map <- function(geography) {
+  check_geography(geography)
+  df <- read_demography_subset(geography) %>%
+    dplyr::left_join(read_land_area_csv(geography), by = "geo_id")
+
+  if (geography == "tract") {
+    df <- dplyr::left_join(df, read_geos_tract(), by = "geo_id")
+  } else if (geography == "block_group") {
+    df <- dplyr::left_join(df, read_geos_block_group(), by = "geo_id")
+  }
+  df
+}
+
 
 
 
