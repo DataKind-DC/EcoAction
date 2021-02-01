@@ -66,18 +66,18 @@ create_demographics_csv <- function(geography, file_name) {
   # Calculate percentages
   acs_df <- dplyr::mutate(
     acs_df,
-    pct_white = pop_white / tot_pop_race,
-    pct_nonwhite = 1 - pct_white,
-    pct_black = pop_black / tot_pop_race,
-    pct_asian = pop_asian / tot_pop_race,
-    pct_pac_isl = pop_pac_isl / tot_pop_race,
-    pct_native = pop_native / tot_pop_race,
-    pct_other = pop_other / tot_pop_race,
-    pct_two_plus = pop_two_plus / tot_pop_race,
-    pct_hisp = pop_hisp / tot_pop_hisp,
-    pct_white_not_hisp = pop_white_not_hisp / tot_pop_hisp,
-    # pct_nonwhitenh = 1 - pct_white_not_hisp,
-    pct_in_poverty = pop_in_poverty / tot_pop_income,
+    pct_white = pop_white / tot_pop_race * 100,
+    pct_nonwhite = 100 - pct_white,
+    pct_black = pop_black / tot_pop_race * 100,
+    pct_asian = pop_asian / tot_pop_race * 100,
+    pct_pac_isl = pop_pac_isl / tot_pop_race * 100,
+    pct_native = pop_native / tot_pop_race * 100,
+    pct_other = pop_other / tot_pop_race * 100,
+    pct_two_plus = pop_two_plus / tot_pop_race * 100,
+    pct_hisp = pop_hisp / tot_pop_hisp * 100,
+    pct_white_not_hisp = pop_white_not_hisp / tot_pop_hisp * 100,
+    # pct_nonwhitenh = 100 - pct_white_not_hisp,
+    pct_in_poverty = pop_in_poverty / tot_pop_income * 100,
   )
 
   write.csv(acs_df, file_name, row.names = FALSE)
