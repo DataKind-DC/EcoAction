@@ -90,3 +90,26 @@ create_demographics_csv <- function(geography, file_name) {
 # acs_vars_df <- tidycensus::load_variables(2019, "acs5", cache = TRUE)
 create_demographics_csv("tract", "data/demographics_tract.csv")
 create_demographics_csv("block group", "data/demographics_block_group.csv")
+
+
+# Income and language-spoken data not available at block level
+
+# dec_vars_df <- tidycensus::load_variables(2010, "sf1", cache = TRUE)
+#
+# df <- get_decennial(
+#   geography = "block",
+#   variables = unname(dem_vars_v),
+#   # table = NULL,
+#   # cache_table = FALSE,
+#   year = 2010,
+#   sumfile = "sf1",
+#   state = "Virginia",
+#   county = "Arlington County",
+#   geometry = FALSE,
+#   output = "tidy",
+#   keep_geo_vars = FALSE,
+#   shift_geo = FALSE,
+#   summary_var = NULL,
+#   key = NULL,
+#   show_call = FALSE
+# )

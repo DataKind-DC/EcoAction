@@ -31,16 +31,20 @@ from Google Drive and place it in `EcoAction/data/` on your local.
 Contains all old scripts and code that are no longer in active development.
 
 ### data/
-Relevant demographic, canopy, and shape files for the project
+Relevant demographic, land area, shape files, and rds files for the project. See
+`data/description_of_data.md` for more information obout the csv files.
 
 ### data/shape_files/
 After unzipping these files, you will see a collection of folders that contain shape files. All of these were downloaded from [Arlington County Open Data](https://gisdata-arlgis.opendata.arcgis.com/search).
+
+### data/rds/
+Folder to store rds files if needed.
 
 ### scripts/
 Scripts that are intended to be run a single time to generate data files or maps.
 
 ### src/
-The main files of the application, although currently there are only files that contain helper functions.
+Source files and helper functions
 
 ## Contributing
 Take a look at the issues tab in this repo and select one or more to work on. 

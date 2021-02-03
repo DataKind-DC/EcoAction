@@ -4,6 +4,7 @@ library(sp)
 library(readr)
 
 
+
 ################################################################################
 # Read csv files ---------------------------------------------------------------
 ################################################################################
@@ -14,8 +15,14 @@ check_geography <- function(geography) {
   }
 }
 
-read_demography_csv <- function(geography) {
-  # TODO: ADd doc string
+read_demographics_csv <- function(geography) {
+  #' Read data/demographics_block_group.csv or data/demographics_tract.csv
+  #'
+  #' See data/description_of_data.md for details
+  #'
+  #' @param geography either "block_group" or "tract"
+  #'
+  #' @returns tibble DataFrame
   check_geography(geography)
   file <- paste("data/demographics_", geography, ".csv", sep = "")
   readr::read_csv(
@@ -25,9 +32,16 @@ read_demography_csv <- function(geography) {
     ))
 }
 
-read_demography_subset <- function(geography) {
+read_demographics_subset <- function(geography) {
+  #' Return a subset of columns from read_demographics_csv()
+  #'
+  #' Just the relevant columns; currently geo_id, pct_nonwhite, and pct_in_poverty
+  #'
+  #' @param geography either "block_group" or "tract"
+  #'
+  #' @returns tibble DataFrame
   dplyr::select(
-    read_demography_csv(geography),
+    read_demographics_csv(geography),
     "geo_id",
     "pct_nonwhite",
     "pct_in_poverty"
@@ -35,7 +49,13 @@ read_demography_subset <- function(geography) {
 }
 
 read_land_area_csv <- function(geography) {
-  # TODO: Add doc string
+  #' Read either data/land_area_block_group.csv or data/land_area_tract.csv
+  #'
+  #' See data/description_of_data.md for details
+  #'
+  #' @param geography either "block_group" or "tract"
+  #'
+  #' @returns tibble DataFrame
   check_geography(geography)
   file <- paste("data/land_area_", geography, ".csv", sep = "")
   readr::read_csv(
@@ -46,6 +66,11 @@ read_land_area_csv <- function(geography) {
 }
 
 read_tree_data <- function() {
+  #' Read "data/tree_data_consolidated - trees.csv"
+  #'
+  #' Also converts the columns "long" and "lat" into a single "geography" column
+  #'
+  #' @returns tibble DataFrame
   readr::read_csv(
     file = "data/tree_data_consolidated - trees.csv",
     col_types = readr::cols(
@@ -68,6 +93,11 @@ read_tree_data <- function() {
 }
 
 read_tree_data_subset <- function() {
+  #' Return a subset of the columns from read_tree_data()
+  #'
+  #' Return year, tree_count, tree_name, scientific_name, and geometry
+  #'
+  #' @returns tibble DataFrame
   dplyr::select(
     read_tree_data(),
     "year",
@@ -188,8 +218,16 @@ read_land_zoning <- function() {
 ################################################################################
 
 load_geo_data_for_map <- function(geography) {
+  #' Combine all relevant data at the tract or block_group level
+  #'
+  #' Combine read_demographics_subset(), read_land_area_csv(), and the polygons
+  #'  from read_geos_tract() or read_geos_block_group()
+  #'
+  #' @param geography must be either "tract" or "block_group"
+  #'
+  #' @returns tibble DataFrame
   check_geography(geography)
-  df <- read_demography_subset(geography) %>%
+  df <- read_demographics_subset(geography) %>%
     dplyr::left_join(read_land_area_csv(geography), by = "geo_id")
 
   if (geography == "tract") {
