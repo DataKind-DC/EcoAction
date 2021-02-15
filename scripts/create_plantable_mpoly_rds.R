@@ -18,7 +18,7 @@ zones_sf <- read_land_zoning()
 # Generate the plantable_zone_names list with the line below
 # sort(unique(as_tibble(zones_sf)$LABEL))
 
-# Comment out all zones that include housing
+# Only include zones that includes residential
 plantable_zone_names <- c(
   "Apartment Dwelling and Commercial District",
   "Apartment Dwelling District",
@@ -82,6 +82,7 @@ for (land_sf in land_sf_list) {
   plantable_mpoly <- sf::st_difference(plantable_mpoly, land_u)
 }
 
+# Save as RDS because this takes a long time to run
 saveRDS(plantable_mpoly, "data/rds/plantable_mpoly.rds")
 quick_map(plantable_mpoly, "plantable_area")
 
