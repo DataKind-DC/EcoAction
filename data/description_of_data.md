@@ -1,10 +1,10 @@
 # Description of Data
-In all of these csv files, block_group and tract are defined by the US Census 
-Bureau's definitions, shown [here](https://learn.arcgis.com/en/related-concepts/united-states-census-geography.htm#:~:text=Census%20tracts%20are%20relatively%20small,of%20blocks%20within%20a%20tract.)
+In all of these csv files, *block_group* and *tract* are defined by the US Census 
+Bureau's definitions, shown [here](https://learn.arcgis.com/en/related-concepts/united-states-census-geography.htm#:~:text=Census%20tracts%20are%20relatively%20small,of%20blocks%20within%20a%20tract.).
 
 ## demographics_*\<geo\>*.csv
 *geo* is either *block_group* or *tract*. These files were created using the script
-`scripts/create_demographics_csv.R`, which pulls the American Consumer Survey (ACS) 5-year data from 2019
+`scripts/create_demographics_csv.R`, which pulls the American Consumer Survey (ACS) 5-year data from 2019.
 ### Columns
 * **geo_id** (string): Unique identifier for the tract or block_group
 * **tot_pop_race** (integer): Total population, to be used with other *race* variables
@@ -38,12 +38,12 @@ Bureau's definitions, shown [here](https://learn.arcgis.com/en/related-concepts/
 *geo* is either *block_group* or *tract*. These files were created using the script
 `scripts/create_land_area_csv.R`
 * **geo_id** (string): Unique identifying for the tract or block_group
-* **area_m_sq** (float): Physical area of the tract/block_group in squared meters
-* **area_canopy** (float): Area covered in tree canopy (as of 2016) in squared meters
+* **area_m_sq** (float): Physical area of the tract/block_group in meters squared
+* **area_canopy** (float): Area covered in tree canopy (as of 2016) in meters squared
 * **pct_canopy** (float): Percentage of area covered in tree canopy
-* **area_plantable** (float): Area that is plantable by EcoAction, meaning the area zoned for residential use and is not an alley, building, driveway, handicap ramp, parking lot, paved median, pond, road, or sidewalk  
+* **area_plantable** (float): Area that is plantable by EcoAction, meaning the area that is zoned for residential use and is not an alley, building, driveway, handicap ramp, parking lot, paved median, pond, road, or sidewalk  
 * **pct_plantable** (float): Percentage that is plantable by EcoAction
-* **area_open_plantable** (float): Area that is plantable and is not under tree canopy (open to the sky)
+* **area_open_plantable** (float): Area that is plantable and is not already under tree canopy (as of 2016)
 * **pct_open_plantable** (float): Percentage of area that is open and plantable
 
 

@@ -32,7 +32,7 @@ Contains all old scripts and code that are no longer in active development.
 
 ### data/
 Relevant demographic, land area, shape files, and rds files for the project. See
-`data/description_of_data.md` for more information obout the csv files.
+`data/description_of_data.md` for more information about the csv files.
 
 ### data/shape_files/
 After unzipping these files, you will see a collection of folders that contain shape files. All of these were downloaded from [Arlington County Open Data](https://gisdata-arlgis.opendata.arcgis.com/search).
@@ -48,7 +48,7 @@ Source files and helper functions
 
 ## Contributing
 Take a look at the issues tab in this repo and select one or more to work on. 
-When writing code, please do your best to write quality code by following
+When writing code, please do your best to write quality, readable code by following
 the [tidyverse style guide](https://style.tidyverse.org/).
 
 We highly recommend that you use pull-requests when commiting new code. 
