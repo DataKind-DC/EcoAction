@@ -2,7 +2,10 @@ library(leaflet)
 library(htmlwidgets)
 
 quick_map <- function(sf_df, file_prefix) {
-  # TODO: docstring
+  #' create leaflet polygon map and save as html widget in 'maps' directory
+  #'
+  #' @param sf_df an sf data.frame
+  #' @param file_prefix string to name file (do not include extension)
   lf <- leaflet::leaflet(sf_df) %>%
     leaflet::addProviderTiles("CartoDB.Positron") %>%
     leaflet::addPolygons(
