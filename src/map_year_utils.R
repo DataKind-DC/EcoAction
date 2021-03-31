@@ -57,12 +57,9 @@ year_map <- function(to_map, map_name) {
 #each year is it's own, stackable layer in this map
 year_layer_map <-function(to_map, map_name){
     #one layer per year
-    years = sort(unique(to_map$year))
-    label_groups = c()
-    for (i in 1:10) {
-        label_groups[i]=paste("Trees planted in", years[i])
-    }
-    #CAN THIS BE DONE WITH FOR LOOP?
+    years <- sort(unique(to_map$year))
+    label_groups <- paste("Trees planted in", years)
+
     lf <- to_map %>%
         leaflet() %>%
         addProviderTiles("CartoDB.Positron") %>%
