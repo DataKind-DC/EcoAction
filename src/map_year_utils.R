@@ -49,9 +49,11 @@ year_map <- function(to_map, map_name) {
         )
 
     # save to file
-    saveWidget(lf, file = map_name, selfcontained=TRUE)
-    lf
+    if (!missing(map_name)) {
+        saveWidget(lf, file = map_name, selfcontained = TRUE)
+    }
 
+    lf
 }
 
 #each year is it's own, stackable layer in this map
@@ -93,7 +95,10 @@ year_layer_map <-function(to_map, map_name){
         )
 
     # save to file
-    saveWidget(lf, file = map_name, selfcontained=TRUE)
+    if (!missing(map_name)) {
+        saveWidget(lf, file = map_name, selfcontained = TRUE)
+    }
+
     lf
 }
 
