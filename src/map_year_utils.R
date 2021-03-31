@@ -70,7 +70,6 @@ year_layer_map <-function(to_map, map_name){
 
     #one layer per year
     years <- sort(unique(to_map$year))
-    label_groups <- paste("Trees planted in", years)
 
     lf <- to_map %>%
         leaflet::leaflet() %>%
@@ -93,15 +92,41 @@ year_layer_map <-function(to_map, map_name){
                     yr_data$scientific_name,
                     yr_data$year
                 ),
-                group = label_groups[i]
+                group = years[i]
             )
     }
+
+    # added title based on https://stackoverflow.com/questions/49072510/r-add-title-to-leaflet-map
+    tag.map.title <- tags$style(
+        HTML(
+            ".leaflet-control.map-title {
+            transform: translate(-50%,20%);
+            position: fixed !important;
+            left: 50%;
+            text-align: center;
+            padding-left: 10px;
+            padding-right: 10px;
+            background: rgba(255,255,255,0.75);
+            font-weight: bold;
+            font-size: 24px;
+            }"
+        )
+    )
+
+    title <- tags$div(
+        tag.map.title, HTML("Trees Planted by Year")
+    )
 
     lf <- lf %>%
         # Layers control
         leaflet::addLayersControl(
-            overlayGroups = label_groups,
+            overlayGroups = years,
             options = layersControlOptions(collapsed = FALSE)
+        ) %>%
+        leaflet::addControl(
+            html = title,
+            position = "topleft",
+            className = "map-title"
         )
 
     # save to file
