@@ -93,7 +93,7 @@ year_layer_map <-function(to_map, map_name, title){
                     yr_data$scientific_name,
                     yr_data$year
                 ),
-                group = years[i]
+                group = as.character(years[i])
             )
     }
 
@@ -130,7 +130,7 @@ year_layer_map <-function(to_map, map_name, title){
     lf <- lf %>%
         # Layers control
         leaflet::addLayersControl(
-            overlayGroups = years,
+            overlayGroups = as.character(years),
             options = layersControlOptions(collapsed = FALSE)
         )
 
