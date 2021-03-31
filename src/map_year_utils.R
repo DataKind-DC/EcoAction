@@ -24,7 +24,7 @@ year_map <- function(to_map, map_name) {
     #' @param map_name [optional] path to save map to, if specified
 
     #color for map
-    factpal <- colorFactor(topo.colors(10), to_map$year)
+    factpal <- leaflet::colorFactor(topo.colors(10), to_map$year)
 
     #include name of tree and year planted on label
     labels <- sprintf_as_HTML(
@@ -35,25 +35,27 @@ year_map <- function(to_map, map_name) {
 
     # Map each tree planted, color-coded by year
     lf <- to_map %>%
-        leaflet() %>%
-        addProviderTiles("CartoDB.Positron") %>%
-        addCircles( color = ~factpal(year) ,
-                    weight=1,
-                    radius = 25,
-                    opacity=1.0,
-                    fillOpacity=0.5,
-                    label = labels
+        leaflet::leaflet() %>%
+        leaflet::addProviderTiles("CartoDB.Positron") %>%
+        leaflet::addCircles(
+            color = ~factpal(year) ,
+            weight = 1,
+            radius = 25,
+            opacity = 1.0,
+            fillOpacity = 0.5,
+            label = labels
         ) %>%
-        addLegend(
+        leaflet::addLegend(
             'bottomright',
-            pal = factpal, values = ~year,
+            pal = factpal,
+            values = ~year,
             title = 'Year',
             opacity = 1
         )
 
     # save to file
     if (!missing(map_name)) {
-        saveWidget(lf, file = map_name, selfcontained = TRUE)
+        htmlwidgets::saveWidget(lf, file = map_name, selfcontained = TRUE)
     }
 
     lf
@@ -71,40 +73,40 @@ year_layer_map <-function(to_map, map_name){
     label_groups <- paste("Trees planted in", years)
 
     lf <- to_map %>%
-        leaflet() %>%
-        addProviderTiles("CartoDB.Positron")
+        leaflet::leaflet() %>%
+        leaflet::addProviderTiles("CartoDB.Positron")
 
     for (i in seq_along(years)) {
         yr_data <- dplyr::filter(to_map, year == years[i])
 
         lf <- lf %>%
-            addCircles(
+            leaflet::addCircles(
                 data =  yr_data$geometry,
-                    color = "forestgreen",
-                    weight=0.5,
-                    radius = 25,
-                    opacity = 0.5,
-                    fillOpacity = 0.5,
-                    label = sprintf_as_HTML(
-                        "<strong>%s</strong><br/>%s<br/>Planted: %g",
-                        yr_data$tree_name,
-                        yr_data$scientific_name,
-                        yr_data$year
-                    ),
-                    group = label_groups[i]
-        )
+                color = "forestgreen",
+                weight = 0.5,
+                radius = 25,
+                opacity = 0.5,
+                fillOpacity = 0.5,
+                label = sprintf_as_HTML(
+                    "<strong>%s</strong><br/>%s<br/>Planted: %g",
+                    yr_data$tree_name,
+                    yr_data$scientific_name,
+                    yr_data$year
+                ),
+                group = label_groups[i]
+            )
     }
 
     lf <- lf %>%
         # Layers control
-        addLayersControl(
+        leaflet::addLayersControl(
             overlayGroups = label_groups,
             options = layersControlOptions(collapsed = FALSE)
         )
 
     # save to file
     if (!missing(map_name)) {
-        saveWidget(lf, file = map_name, selfcontained = TRUE)
+        htmlwidgets::saveWidget(lf, file = map_name, selfcontained = TRUE)
     }
 
     lf
