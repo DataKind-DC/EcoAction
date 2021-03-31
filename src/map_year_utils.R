@@ -24,10 +24,10 @@ year_map <- function(to_map, map_name) {
     factpal <- colorFactor(topo.colors(10), to_map$year)
 
     #include name of tree and year planted on label
-    labels <- sprintf(
-        "<strong>%s</strong><br/>%s<br/>planted: %g",
+    labels <- sprintf_as_HTML(
+        "<strong>%s</strong><br/>%s<br/>Planted: %g",
         to_map$tree_name, to_map$scientific_name, to_map$year
-    ) %>% lapply(htmltools::HTML)
+    )
 
 
     # Map each tree planted, color-coded by year
@@ -73,12 +73,12 @@ year_layer_map <-function(to_map, map_name){
                     radius = 25,
                     opacity = 0.5,
                     fillOpacity = 0.5,
-                    label = sprintf(
-                        "<strong>%s</strong><br/>%s<br/>planted: %g",
+                    label = sprintf_as_HTML(
+                        "<strong>%s</strong><br/>%s<br/>Planted: %g",
                         to_map[ which(to_map$year==years[i]),"tree_name"]$tree_name,
                         to_map[ which(to_map$year==years[i]),"scientific_name"]$scientific_name,
                         to_map[ which(to_map$year==years[i]),"year"]$year
-                    ) %>% lapply(htmltools::HTML),
+                    ),
                     group = label_groups[i]
         )
     }
@@ -93,4 +93,15 @@ year_layer_map <-function(to_map, map_name){
     # save to file
     saveWidget(lf, file = map_name, selfcontained=TRUE)
     lf
+}
+
+
+sprintf_as_HTML <- function(fmt, ...) {
+    #' Vectorized conversion of sprintf output as HTML
+    #'
+    #' See sprintf for arguments and details
+    formatted <- sprintf(fmt, ...)
+    as_HTML <- purrr::map(formatted, htmltools::HTML)
+
+    as_HTML
 }
