@@ -65,9 +65,11 @@ year_layer_map <-function(to_map, map_name){
         addProviderTiles("CartoDB.Positron")
 
     for (i in seq_along(years)) {
+        yr_data <- dplyr::filter(to_map, year == years[i])
+
         lf <- lf %>%
             addCircles(
-                data =  to_map[ which(to_map$year==years[i]),"geometry"],
+                data =  yr_data$geometry,
                     color = "forestgreen",
                     weight=0.5,
                     radius = 25,
@@ -75,9 +77,9 @@ year_layer_map <-function(to_map, map_name){
                     fillOpacity = 0.5,
                     label = sprintf_as_HTML(
                         "<strong>%s</strong><br/>%s<br/>Planted: %g",
-                        to_map[ which(to_map$year==years[i]),"tree_name"]$tree_name,
-                        to_map[ which(to_map$year==years[i]),"scientific_name"]$scientific_name,
-                        to_map[ which(to_map$year==years[i]),"year"]$year
+                        yr_data$tree_name,
+                        yr_data$scientific_name,
+                        yr_data$year
                     ),
                     group = label_groups[i]
         )
