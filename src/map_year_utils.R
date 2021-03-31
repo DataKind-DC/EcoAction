@@ -2,9 +2,7 @@
 # Objective : function for make map of trees planted per year
 # Created by: Charlotte
 # Created on: 15 Feb 2021
-
-#TO DO:
-#Is there a way of making layered map (year_layer_map) with loop?
+# Updated   : 30 Mar 2021, J. Allen Baron
 
 library(tidyverse)
 library(leaflet)
@@ -18,8 +16,13 @@ library(units)
 library(lwgeom)
 library(ggplot2)
 
-#map trees by year with legend
+
 year_map <- function(to_map, map_name) {
+    #' Create leaflet map of trees planted by year with legend
+    #'
+    #' @param to_map data for mapping
+    #' @param map_name [optional] path to save map to, if specified
+
     #color for map
     factpal <- colorFactor(topo.colors(10), to_map$year)
 
@@ -56,8 +59,13 @@ year_map <- function(to_map, map_name) {
     lf
 }
 
-#each year is it's own, stackable layer in this map
+
 year_layer_map <-function(to_map, map_name){
+    #' Create leaflet map with checkboxes to (de)select trees planted by year
+    #'
+    #' @param to_map data for mapping
+    #' @param map_name [optional] path to save map to, if specified
+
     #one layer per year
     years <- sort(unique(to_map$year))
     label_groups <- paste("Trees planted in", years)
@@ -107,6 +115,7 @@ sprintf_as_HTML <- function(fmt, ...) {
     #' Vectorized conversion of sprintf output as HTML
     #'
     #' See sprintf for arguments and details
+
     formatted <- sprintf(fmt, ...)
     as_HTML <- purrr::map(formatted, htmltools::HTML)
 
