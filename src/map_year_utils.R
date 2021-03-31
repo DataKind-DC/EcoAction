@@ -62,11 +62,12 @@ year_map <- function(to_map, map_name) {
 }
 
 
-year_layer_map <-function(to_map, map_name){
+year_layer_map <-function(to_map, map_name, title){
     #' Create leaflet map with checkboxes to (de)select trees planted by year
     #'
     #' @param to_map data for mapping
     #' @param map_name [optional] path to save map to, if specified
+    #' @param title [optional] title to display at top-center of map
 
     #one layer per year
     years <- sort(unique(to_map$year))
@@ -96,37 +97,41 @@ year_layer_map <-function(to_map, map_name){
             )
     }
 
-    # added title based on https://stackoverflow.com/questions/49072510/r-add-title-to-leaflet-map
-    tag.map.title <- tags$style(
-        HTML(
-            ".leaflet-control.map-title {
-            transform: translate(-50%,20%);
-            position: fixed !important;
-            left: 50%;
-            text-align: center;
-            padding-left: 10px;
-            padding-right: 10px;
-            background: rgba(255,255,255,0.75);
-            font-weight: bold;
-            font-size: 24px;
-            }"
+    if (!missing(title)) {
+        # added title based on https://stackoverflow.com/questions/49072510/r-add-title-to-leaflet-map
+        tag.map.title <- tags$style(
+            HTML(
+                ".leaflet-control.map-title {
+                transform: translate(-50%,20%);
+                position: fixed !important;
+                left: 50%;
+                text-align: center;
+                padding-left: 10px;
+                padding-right: 10px;
+                background: rgba(255,255,255,0.75);
+                font-weight: bold;
+                font-size: 24px;
+                }"
+            )
         )
-    )
 
-    title <- tags$div(
-        tag.map.title, HTML("Trees Planted by Year")
-    )
+        title <- tags$div(
+            tag.map.title, HTML("Trees Planted by Year")
+        )
+
+        lf <- lf %>%
+            leaflet::addControl(
+                html = title,
+                position = "topleft",
+                className = "map-title"
+            )
+    }
 
     lf <- lf %>%
         # Layers control
         leaflet::addLayersControl(
             overlayGroups = years,
             options = layersControlOptions(collapsed = FALSE)
-        ) %>%
-        leaflet::addControl(
-            html = title,
-            position = "topleft",
-            className = "map-title"
         )
 
     # save to file
