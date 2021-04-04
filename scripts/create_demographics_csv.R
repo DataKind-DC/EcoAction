@@ -4,6 +4,7 @@
 library(dplyr)
 library(tidyverse)
 library(tidycensus)
+library(units)
 
 source("src/load_data.R")
 source("src/sf_helpers.R")
@@ -96,7 +97,7 @@ create_acs_demographics_csv("block group", "data/demographics_block_group.csv")
 
 # Create CSV of how much area of each block group is in each civic assoc -------
 
-create_block_group_area_in_civics_csv <- function() {
+create_block_group_area_in_civics_csv <- function(min_m2_threshold = 10) {
 
   civics_df <- read_geos_civ_assoc()
   blocks_df <- read_geos_block_group()
@@ -105,17 +106,22 @@ create_block_group_area_in_civics_csv <- function() {
   bg_areas <- tibble(get_poly_with_area(blocks_df))
   bg_areas <- subset(bg_areas, select = -geometry)
 
-  # I know for-loops are bad practice in R, but I couldn't figure it out otherwise
-  # for each civic association...
+  # I know for-loops are bad practice in R, but I couldn't figure it out otherwise.
+  # For each civic association...
   for (row in 1:nrow(civics_df)) {
     civ_name <- civics_df[row,]$civ_name
     civ_geo <- civics_df[row,]$geometry
 
-    # Add a new column to the bg_areas dataframe for each civic association,
-    # where each cell is the intersection area of the block group and the
-    # civic association
-    bg_areas[, ncol(bg_areas) + 1] <- area_of_top_on_base(blocks_df, civ_geo)
-    # Name the column the id of the civic association
+    # Get a column of the area of each block group that intersects with
+    # the area of the civic assoc
+    areas_b_groups_on_civ <- tibble(drop_units(area_of_top_on_base(blocks_df, civ_geo)))
+    # I assume that tiny areas are just polygon errors. Thus, set everything
+    # below 'min_m2_threshold' to zero.
+    areas_b_groups_on_civ[areas_b_groups_on_civ < min_m2_threshold] <- 0
+
+    # Add this column to bg_areas
+    bg_areas[, ncol(bg_areas) + 1] <- areas_b_groups_on_civ
+    # Name the column the name of the civic association
     colnames(bg_areas)[ncol(bg_areas)] <- paste0(civ_name)
   }
 
