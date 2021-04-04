@@ -148,6 +148,26 @@ read_geos_tract <- function() {
 }
 
 read_geos_civ_assoc <- function() {
+  tryCatch(
+    ca <- read_shp_file("data/shape_files/Modified_Civic_Associations"),
+    error = function(e) {
+      stop(
+        paste0(
+          conditionMessage(e),
+          "\nHave you pulled and unzipped Modified_Civic_Associations.zip?"
+        ),
+        call. = FALSE
+      )
+    }
+  )
+  ca <- ca[, (names(ca) %in% c("CIVIC", "GIS_ID", "modified", "geometry"))]
+  colnames(ca) <- c("civ_name", "civ_id", "modified", "geometry")
+  ca <- ca[order(ca$civ_name),]
+  row.names(ca) <- NULL
+  ca
+}
+
+read_geos_civ_assoc_original <- function() {
   ca <- read_shp_file("data/shape_files/Geos/Civic_Association_Polygons")
   ca <- ca[, (names(ca) %in% c("CIVIC", "GIS_ID", "geometry"))]
   colnames(ca) <- c("civ_name", "civ_id", "geometry")
