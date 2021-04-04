@@ -13,12 +13,12 @@ source("src/load_data.R")
 # census_api_key(key="<insert_key_here>", install=TRUE, overwrite = TRUE)
 
 
-# Get Demographic Data ---------------------------------------------------------
+# Get ACS Demographic Data -----------------------------------------------------
 # Extract ACS 5-year estimates at the block group (or any larger
 # geography) using the tidycensus package.
 
 
-create_demographics_csv <- function(geography, file_name) {
+create_acs_demographics_csv <- function(geography, file_name) {
   # TODO: Do we need age and/or language stats?
   dem_vars_v <- c(
     "tot_pop_race" = "B02001_001", # Tot pop for use in RACE variables
@@ -66,6 +66,7 @@ create_demographics_csv <- function(geography, file_name) {
   # Calculate percentages
   acs_df <- dplyr::mutate(
     acs_df,
+    pop_nonwhite = tot_pop_race - pop_white,
     pct_white = pop_white / tot_pop_race * 100,
     pct_nonwhite = 100 - pct_white,
     pct_black = pop_black / tot_pop_race * 100,
@@ -88,8 +89,8 @@ create_demographics_csv <- function(geography, file_name) {
 }
 
 # acs_vars_df <- tidycensus::load_variables(2019, "acs5", cache = TRUE)
-create_demographics_csv("tract", "data/demographics_tract.csv")
-create_demographics_csv("block group", "data/demographics_block_group.csv")
+create_acs_demographics_csv("tract", "data/demographics_tract.csv")
+create_acs_demographics_csv("block group", "data/demographics_block_group.csv")
 
 
 # Income and language-spoken data not available at block level
