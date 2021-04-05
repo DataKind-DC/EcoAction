@@ -91,8 +91,8 @@ create_acs_demographics_csv <- function(geography, file_name) {
 }
 
 # acs_vars_df <- tidycensus::load_variables(2019, "acs5", cache = TRUE)
-create_acs_demographics_csv("tract", "data/demographics_tract.csv")
-create_acs_demographics_csv("block group", "data/demographics_block_group.csv")
+create_acs_demographics_csv("tract", "data/demographics/demographics_tract.csv")
+create_acs_demographics_csv("block group", "data/demographics/demographics_block_group.csv")
 
 
 # Create CSV of how much area of each block group is in each civic assoc -------
@@ -148,7 +148,7 @@ create_demographics_civ_assoc_csv <- function() {
   # group (rows) in each civic association (columns).
   bg_areas_pct <- select(bg_areas, -geo_id, -area) / bg_areas$area
 
-  bg_dem_df <- dplyr::select(read_demographics_csv('block_group'),
+  bg_dem_df <- dplyr::select(read_demographics_block_group_csv(),
                              "geo_id",
                              "tot_pop_race",
                              "pop_nonwhite",
@@ -179,7 +179,7 @@ create_demographics_civ_assoc_csv <- function() {
     pct_in_poverty = pop_in_poverty / tot_pop_income * 100,
   )
 
-  write.csv(civ_dem_df, 'data/demographics_civic_associations.csv', row.names = FALSE)
+  write.csv(civ_dem_df, 'data/demographics/demographics_civic_association.csv', row.names = FALSE)
 }
 
 create_demographics_civ_assoc_csv()

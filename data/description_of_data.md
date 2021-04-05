@@ -3,10 +3,10 @@ In all of these csv files, *block_group* and *tract* are defined by the US Censu
 Bureau's definitions, shown [here](https://learn.arcgis.com/en/related-concepts/united-states-census-geography.htm#:~:text=Census%20tracts%20are%20relatively%20small,of%20blocks%20within%20a%20tract.).
 
 ## demographics_*\<geo\>*.csv
-*geo* is either *block_group* or *tract*. These files were created using the script
+*geo* is either *block_group*, *tract*, or *civic_association*. These files were created using the script
 `scripts/create_demographics_csv.R`, which pulls the American Consumer Survey (ACS) 5-year data from 2019.
 ### Columns
-* **geo_id** (string): Unique identifier for the tract or block_group
+* **geo_id** (string): Unique identifier for the tract, block_group, or civic association
 * **tot_pop_race** (integer): Total population, to be used with other *race* variables
 * **pop_white** (integer): Population that identify as white and white only
 * **pop_black** (integer): Population that identify as black and black only
@@ -22,6 +22,7 @@ Bureau's definitions, shown [here](https://learn.arcgis.com/en/related-concepts/
 * **tot_pop_income** (integer): Total population, to be used with other *income* variables
 * **pop_in_poverty** (integer): Population that fall below the poverty line
 * **per_cap_income** (integer): Per-capita income, normalized to 2019 inflation
+* **pop_nonwhite** (integer): **tot_pop_race** - **pop_white** 
 * **pct_white** (float): Percentage of residents who identify as white
 * **pct_nonwhite** (float):
 * **pct_black** (float):
@@ -35,9 +36,9 @@ Bureau's definitions, shown [here](https://learn.arcgis.com/en/related-concepts/
 * **pct_in_poverty** (float): 
 
 ## land_area_*\<geo\>*.csv
-*geo* is either *block_group* or *tract*. These files were created using the script
+*geo* is either *block_group*, *tract*, or *civic_association*. These files were created using the script
 `scripts/create_land_area_csv.R`
-* **geo_id** (string): Unique identifying for the tract or block_group
+* **geo_id** (string): Unique identifier for the tract, block_group, or civic association
 * **area_m_sq** (float): Physical area of the tract/block_group in meters squared
 * **area_canopy** (float): Area covered in tree canopy (as of 2016) in meters squared
 * **pct_canopy** (float): Percentage of area covered in tree canopy

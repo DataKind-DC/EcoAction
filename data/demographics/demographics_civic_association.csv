@@ -1,4 +1,4 @@
-"civ_name","civ_id","modified","tot_pop_race","pop_nonwhite","tot_pop_income","pop_in_poverty","pct_nonwhite","pct_in_poverty"
+"civ_name","geo_id","modified","tot_pop_race","pop_nonwhite","tot_pop_income","pop_in_poverty","pct_nonwhite","pct_in_poverty"
 "Alcova Heights",11,"FALSE",1619.38813942884,462.734859779414,1619.38813942884,42.1051380096107,28.5746726502901,2.60006461603833
 "Arlington - East Falls Church",25,"FALSE",5637.34568128003,798.952100747592,5637.34568128003,146.565720709471,14.1724873001966,2.59990656943698
 "Arlington Forest",58,"FALSE",2941.2509784637,630.595145202517,2938.64296725415,74.0167123549429,21.4396918120838,2.51873783850999

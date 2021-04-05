@@ -32,9 +32,9 @@ source("src/demos_canopy_utils.R")
 
 #For tracts-get demographics, canopy, and make map
 #get demographics
-demo_tract <- read_demographics_csv('tract')
+demo_tract <- read_demographics_tract_csv()
 #get canopy area
-canopy_tract <- read_land_area_csv('tract')
+canopy_tract <- read_land_area_tract_csv()
 #read geos of tracts and add to demo_tract and canopy_tract
 tracts <- read_geos_tract()
 #add geometry
@@ -61,9 +61,9 @@ pairs(corr_df, pch=18)
 
 #make same maps at block_group level (smaller than tracts)
 #get demographics
-demo_bg <- read_demographics_csv('block_group')
+demo_bg <- read_demographics_block_group_csv()
 #get canopy area
-canopy_bg <- read_land_area_csv('block_group')
+canopy_bg <- read_land_area_block_group_csv()
 #read geos of bgs and add to demo_bg and canopy_bg
 block_group <- read_geos_block_group()
 #merge bgs with geometries

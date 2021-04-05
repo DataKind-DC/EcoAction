@@ -9,28 +9,46 @@ library(readr)
 # Read csv files ---------------------------------------------------------------
 ################################################################################
 
-check_geography <- function(geography) {
-  if (!(geography %in% c("block_group", "tract"))) {
-    stop("`geography` must be either 'block_group' or 'tract'")
-  }
-}
-
-read_demographics_csv <- function(geography) {
-  #' Read data/demographics_block_group.csv or data/demographics_tract.csv
+read_demographics_block_group_csv <- function() {
+  #' Read data/demographics/demographics_block_group.csv
   #'
   #' See data/description_of_data.md for details
   #'
-  #' @param geography either "block_group" or "tract"
-  #'
   #' @returns tibble DataFrame
-  check_geography(geography)
-  file <- paste("data/demographics_", geography, ".csv", sep = "")
   readr::read_csv(
-    file = file,
+    file = 'data/demographics/demographics_block_group.csv',
     col_types = readr::cols(
       geo_id = col_character()
     ))
 }
+
+read_demographics_tract_csv <- function() {
+  #' Read data/demographics/demographics_tract.csv
+  #'
+  #' See data/description_of_data.md for details
+  #'
+  #' @returns tibble DataFrame
+  readr::read_csv(
+    file = 'data/demographics/demographics_tract.csv',
+    col_types = readr::cols(
+      geo_id = col_character()
+    ))
+}
+
+read_demographics_civic_association_csv <- function() {
+  #' Read data/demographics/demographics_civic_association.csv
+  #'
+  #' See data/description_of_data.md for details
+  #'
+  #' @returns tibble DataFrame
+  readr::read_csv(
+    file = 'data/demographics/demographics_civic_association.csv',
+    col_types = readr::cols(
+      civ_name = col_character(),
+      geo_id = col_character()
+    ))
+}
+
 
 read_demographics_subset <- function(geography) {
   #' Return a subset of columns from read_demographics_csv()
@@ -61,6 +79,46 @@ read_land_area_csv <- function(geography) {
   readr::read_csv(
     file = file,
     col_types = readr::cols(
+      geo_id = col_character()
+    ))
+}
+
+read_land_area_block_group_csv <- function() {
+  #' Read data/land_area/land_area_block_group.csv
+  #'
+  #' See data/description_of_data.md for details
+  #'
+  #' @returns tibble DataFrame
+  readr::read_csv(
+    file = 'data/land_area/land_area_block_group.csv',
+    col_types = readr::cols(
+      geo_id = col_character()
+    ))
+}
+
+read_land_area_tract_csv <- function() {
+  #' Read data/land_area/land_area_tract.csv
+  #'
+  #' See data/description_of_data.md for details
+  #'
+  #' @returns tibble DataFrame
+  readr::read_csv(
+    file = 'data/land_area/land_area_tract.csv',
+    col_types = readr::cols(
+      geo_id = col_character()
+    ))
+}
+
+read_land_area_civic_association_csv <- function() {
+  #' Read data/land_area/land_area_tract.csv
+  #'
+  #' See data/description_of_data.md for details
+  #'
+  #' @returns tibble DataFrame
+  readr::read_csv(
+    file = 'data/land_area/land_area_civic_association.csv',
+    col_types = readr::cols(
+      civ_name = col_character(),
       geo_id = col_character()
     ))
 }
@@ -161,7 +219,7 @@ read_geos_civ_assoc <- function() {
     }
   )
   ca <- ca[, (names(ca) %in% c("CIVIC", "GIS_ID", "modified", "geometry"))]
-  colnames(ca) <- c("civ_name", "civ_id", "modified", "geometry")
+  colnames(ca) <- c("civ_name", "geo_id", "modified", "geometry")
   ca <- ca[order(ca$civ_name),]
   row.names(ca) <- NULL
   ca
@@ -170,7 +228,7 @@ read_geos_civ_assoc <- function() {
 read_geos_civ_assoc_original <- function() {
   ca <- read_shp_file("data/shape_files/Geos/Civic_Association_Polygons")
   ca <- ca[, (names(ca) %in% c("CIVIC", "GIS_ID", "geometry"))]
-  colnames(ca) <- c("civ_name", "civ_id", "geometry")
+  colnames(ca) <- c("civ_name", "geo_id", "geometry")
   ca <- ca[order(ca$civ_name),]
   row.names(ca) <- NULL
   ca
@@ -237,26 +295,27 @@ read_land_zoning <- function() {
 # Aggregating functions --------------------------------------------------------
 ################################################################################
 
-load_geo_data_for_map <- function(geography) {
-  #' Combine all relevant data at the tract or block_group level
-  #'
-  #' Combine read_demographics_subset(), read_land_area_csv(), and the polygons
-  #'  from read_geos_tract() or read_geos_block_group()
-  #'
-  #' @param geography must be either "tract" or "block_group"
-  #'
-  #' @returns tibble DataFrame
-  check_geography(geography)
-  df <- read_demographics_subset(geography) %>%
-    dplyr::left_join(read_land_area_csv(geography), by = "geo_id")
-
-  if (geography == "tract") {
-    df <- dplyr::left_join(df, read_geos_tract(), by = "geo_id")
-  } else if (geography == "block_group") {
-    df <- dplyr::left_join(df, read_geos_block_group(), by = "geo_id")
-  }
-  df
-}
+# TODO: Make separate functions for block_group and civic_association
+# load_geo_data_for_map <- function(geography) {
+#   #' Combine all relevant data at the tract or block_group level
+#   #'
+#   #' Combine read_demographics_subset(), read_land_area_csv(), and the polygons
+#   #'  from read_geos_tract() or read_geos_block_group()
+#   #'
+#   #' @param geography must be either "tract" or "block_group"
+#   #'
+#   #' @returns tibble DataFrame
+#   check_geography(geography)
+#   df <- read_demographics_subset(geography) %>%
+#     dplyr::left_join(read_land_area_csv(geography), by = "geo_id")
+#
+#   if (geography == "tract") {
+#     df <- dplyr::left_join(df, read_geos_tract(), by = "geo_id")
+#   } else if (geography == "block_group") {
+#     df <- dplyr::left_join(df, read_geos_block_group(), by = "geo_id")
+#   }
+#   df
+# }
 
 
 
