@@ -4,8 +4,10 @@
 library(dplyr)
 library(tidyverse)
 library(tidycensus)
+library(units)
 
 source("src/load_data.R")
+source("src/sf_helpers.R")
 
 # BEFORE RUNNING THIS SCRIPT ---------------------------------------------------
 # 1. Get a census apikey from https://api.census.gov/data/key_signup.html
@@ -13,12 +15,12 @@ source("src/load_data.R")
 # census_api_key(key="<insert_key_here>", install=TRUE, overwrite = TRUE)
 
 
-# Get Demographic Data ---------------------------------------------------------
+# Get ACS Demographic Data -----------------------------------------------------
 # Extract ACS 5-year estimates at the block group (or any larger
 # geography) using the tidycensus package.
 
 
-create_demographics_csv <- function(geography, file_name) {
+create_acs_demographics_csv <- function(geography, file_name) {
   # TODO: Do we need age and/or language stats?
   dem_vars_v <- c(
     "tot_pop_race" = "B02001_001", # Tot pop for use in RACE variables
@@ -66,6 +68,7 @@ create_demographics_csv <- function(geography, file_name) {
   # Calculate percentages
   acs_df <- dplyr::mutate(
     acs_df,
+    pop_nonwhite = tot_pop_race - pop_white,
     pct_white = pop_white / tot_pop_race * 100,
     pct_nonwhite = 100 - pct_white,
     pct_black = pop_black / tot_pop_race * 100,
@@ -88,28 +91,95 @@ create_demographics_csv <- function(geography, file_name) {
 }
 
 # acs_vars_df <- tidycensus::load_variables(2019, "acs5", cache = TRUE)
-create_demographics_csv("tract", "data/demographics_tract.csv")
-create_demographics_csv("block group", "data/demographics_block_group.csv")
+create_acs_demographics_csv("tract", "data/demographics/demographics_tract.csv")
+create_acs_demographics_csv("block group", "data/demographics/demographics_block_group.csv")
 
 
-# Income and language-spoken data not available at block level
+# Create CSV of how much area of each block group is in each civic assoc -------
 
-# dec_vars_df <- tidycensus::load_variables(2010, "sf1", cache = TRUE)
-#
-# df <- get_decennial(
-#   geography = "block",
-#   variables = unname(dem_vars_v),
-#   # table = NULL,
-#   # cache_table = FALSE,
-#   year = 2010,
-#   sumfile = "sf1",
-#   state = "Virginia",
-#   county = "Arlington County",
-#   geometry = FALSE,
-#   output = "tidy",
-#   keep_geo_vars = FALSE,
-#   shift_geo = FALSE,
-#   summary_var = NULL,
-#   key = NULL,
-#   show_call = FALSE
-# )
+create_block_group_area_in_civics_csv <- function(min_m2_threshold = 10) {
+
+  civics_df <- read_geos_civ_assoc()
+  blocks_df <- read_geos_block_group()
+
+  # Calculate area in m^2 for each block group and save to df
+  bg_areas <- tibble(get_poly_with_area(blocks_df))
+  bg_areas <- subset(bg_areas, select = -geometry)
+
+  # I know for-loops are bad practice in R, but I couldn't figure it out otherwise.
+  # For each civic association...
+  for (row in 1:nrow(civics_df)) {
+    civ_name <- civics_df[row,]$civ_name
+    civ_geo <- civics_df[row,]$geometry
+
+    # Get a column of the area of each block group that intersects with
+    # the area of the civic assoc
+    areas_b_groups_on_civ <- tibble(drop_units(area_of_top_on_base(blocks_df, civ_geo)))
+    # I assume that tiny areas are just polygon errors. Thus, set everything
+    # below 'min_m2_threshold' to zero.
+    areas_b_groups_on_civ[areas_b_groups_on_civ < min_m2_threshold] <- 0
+
+    # Add this column to bg_areas
+    bg_areas[, ncol(bg_areas) + 1] <- areas_b_groups_on_civ
+    # Name the column the name of the civic association
+    colnames(bg_areas)[ncol(bg_areas)] <- paste0(civ_name)
+  }
+
+  write.csv(bg_areas, 'data/block_group_area_in_civics.csv', row.names = FALSE)
+}
+
+create_block_group_area_in_civics_csv()
+
+
+# Estimate Civic Association Demographic Data ----------------------------------
+# Use the pct of area of each block group to estimate statistics for
+# civic associations
+
+create_demographics_civ_assoc_csv <- function() {
+
+  bg_areas <- readr::read_csv(
+    file = 'data/block_group_area_in_civics.csv',
+    col_types = readr::cols(
+      geo_id = col_character()
+    )
+  )
+
+  # This is a df where the cells are the percentage of the area of the block
+  # group (rows) in each civic association (columns).
+  bg_areas_pct <- select(bg_areas, -geo_id, -area) / bg_areas$area
+
+  bg_dem_df <- dplyr::select(read_demographics_block_group_csv(),
+                             "geo_id",
+                             "tot_pop_race",
+                             "pop_nonwhite",
+                             "tot_pop_income",
+                             "pop_in_poverty"
+  )
+
+  # Initialize a df for the civic associations demographic data
+  civ_df <- tibble(read_geos_civ_assoc())
+  civ_dem_df <- select(civ_df, -geometry)
+
+  # First, for each civic association, multiply the tot_pop_race count in the
+  # block group with the percentage of the block group that is in that civic
+  # association. (This is not perfect because we don't know the density variation
+  # in the block groups, but it should a decent approximation.)
+  # Then, squash the columns to give a single value for each civic
+  # association
+  civ_dem_df$tot_pop_race <- colSums(bg_areas_pct * bg_dem_df$tot_pop_race)
+
+  # Do the same thing for each demographic category
+  civ_dem_df$pop_nonwhite <- colSums(bg_areas_pct * bg_dem_df$pop_nonwhite)
+  civ_dem_df$tot_pop_income <- colSums(bg_areas_pct * bg_dem_df$tot_pop_income)
+  civ_dem_df$pop_in_poverty <- colSums(bg_areas_pct * bg_dem_df$pop_in_poverty)
+
+  civ_dem_df <- mutate(
+    civ_dem_df,
+    pct_nonwhite = pop_nonwhite / tot_pop_race * 100,
+    pct_in_poverty = pop_in_poverty / tot_pop_income * 100,
+  )
+
+  write.csv(civ_dem_df, 'data/demographics/demographics_civic_association.csv', row.names = FALSE)
+}
+
+create_demographics_civ_assoc_csv()
