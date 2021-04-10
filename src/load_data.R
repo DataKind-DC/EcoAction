@@ -49,40 +49,6 @@ read_demographics_civic_association_csv <- function() {
     ))
 }
 
-
-read_demographics_subset <- function(geography) {
-  #' Return a subset of columns from read_demographics_csv()
-  #'
-  #' Just the relevant columns; currently geo_id, pct_nonwhite, and pct_in_poverty
-  #'
-  #' @param geography either "block_group" or "tract"
-  #'
-  #' @returns tibble DataFrame
-  dplyr::select(
-    read_demographics_csv(geography),
-    "geo_id",
-    "pct_nonwhite",
-    "pct_in_poverty"
-  )
-}
-
-read_land_area_csv <- function(geography) {
-  #' Read either data/land_area_block_group.csv or data/land_area_tract.csv
-  #'
-  #' See data/description_of_data.md for details
-  #'
-  #' @param geography either "block_group" or "tract"
-  #'
-  #' @returns tibble DataFrame
-  check_geography(geography)
-  file <- paste("data/land_area_", geography, ".csv", sep = "")
-  readr::read_csv(
-    file = file,
-    col_types = readr::cols(
-      geo_id = col_character()
-    ))
-}
-
 read_land_area_block_group_csv <- function() {
   #' Read data/land_area/land_area_block_group.csv
   #'
