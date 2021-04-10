@@ -132,6 +132,17 @@ read_tree_data_subset <- function() {
   )
 }
 
+read_block_group_area_in_civics_csv <- function() {
+  #' Return tibble of 'data/block_group_area_in_civics.csv'
+  #'
+  #' @returns tibble DataFrame
+  readr::read_csv(
+    file = 'data/block_group_area_in_civics.csv',
+    col_types = readr::cols(
+      geo_id = col_character()
+    )
+  )
+}
 
 ################################################################################
 # Read shp (shape) files -------------------------------------------------------
