@@ -1,0 +1,165 @@
+---
+title: "Ranking Civic Associations with Combined Measures"
+subtitle: "EXAMPLE"
+author: "J. Allen Baron"
+date: "4/21/2021"
+geometry: margin=0.5in
+output:
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+library(here)
+library(tidyverse)
+library(scales)
+library(gridExtra)
+library(kableExtra)
+
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_knit$set(root.dir = here::here())
+```
+
+```{r functions, include = FALSE}
+source("src/load_data.R")
+
+plot_sf <- function(sf_df, fill_var) {
+    ggplot(sf_df) +
+        geom_sf(aes_string(geometry = "geometry", fill = fill_var)) +
+        scale_fill_viridis_c() +
+        theme_minimal() +
+        theme(
+            axis.text = element_blank(),
+            axis.ticks = element_blank(),
+            axis.title = element_blank()
+        ) +
+        labs(title = fill_var) +
+        theme(legend.title = element_blank())
+}
+```
+
+```{r message = FALSE, results = 'hide', warning = FALSE}
+# NOTE: My preference is to use canopy and plantable land separately in this
+#   approach, instead of using open plantable land; currently using canopy ONLY
+
+ca_data <- 'data/civ_stats.csv' %>%
+    readr::read_csv(
+        col_types = readr::cols_only(
+            geo_id = col_double(),
+            civ_name = col_character(),
+            pct_in_poverty = col_double(),
+            #rank_pct_in_poverty = col_double(),
+            pct_nonwhite = col_double(),
+            #rank_pct_nonwhite = col_double(),
+            #canopy_sq_ft_per_capita = col_double(),
+            #rank_canopy_sq_ft_per_capita = col_double(),
+            thousand_ppl_per_sq_mile = col_double(),
+            #rank_thousand_ppl_per_sq_mile = col_double(),
+            pct_canopy = col_double()
+            #rank_pct_canopy = col_double(),
+            #pct_open_plantable = col_double(),
+            #rank_pct_open_plantable = col_double()
+        )
+    )
+
+shape_files <- read_geos_civ_assoc()
+```
+
+```{r}
+ca_sf <- ca_data %>%
+    dplyr::full_join(shape_files, by = c("civ_name", "geo_id"))
+```
+
+
+# Original Measures of Interest
+
+```{r, fig.width = 7, fig.asp = 1, fig.align = "center"}
+purrr::map(
+    c("pct_in_poverty", "pct_nonwhite", "thousand_ppl_per_sq_mile", "pct_canopy"),
+    ~ plot_sf(ca_sf, fill_var = .x)
+) %>%
+  purrr::set_names(
+    c("pct_in_poverty", "pct_nonwhite", "thousand_ppl_per_sq_mile", "pct_canopy")
+  ) %>%
+  gridExtra::grid.arrange(grobs = ., ncol = 2)
+```
+\newpage
+
+# Rescale All Measures of Interest 
+
+Rescale values between 1-10 such that 1 represents low interest in marketing for a given measure and 10 represents greateest interest. Measures where larger values are of lower interest are reversed (e.g. percent canopy).
+
+```{r}
+cols_direct <- c("pct_in_poverty", "pct_nonwhite", "thousand_ppl_per_sq_mile")
+cols_reverse <- "pct_canopy"
+
+ca_rescaled <- ca_sf %>%
+    dplyr::mutate(
+        dplyr::across(
+            tidyselect::all_of(cols_reverse), scales::rescale, to = c(10, 1)
+        ),
+        dplyr::across(
+            tidyselect::all_of(cols_direct), scales::rescale, to = c(1, 10)
+        )
+    ) %>%
+    tidyr::pivot_longer(
+        cols = c("pct_in_poverty", "pct_nonwhite", "thousand_ppl_per_sq_mile",
+                 "pct_canopy"),
+        names_to = "Measure",
+        values_to = "Rescaled_Value"
+    )
+```
+
+
+```{r, fig.width = 7, fig.asp = 1, fig.align = "center"}
+plot_sf(ca_rescaled, "Rescaled_Value") +
+    facet_wrap(~ Measure)
+```
+\newpage
+
+# Combine Rescaled Measures into a Single Ranking
+
+In this basic example, rescaled measures are treated equally and simply added.
+```{r}
+ca_single <- ca_rescaled %>%
+    dplyr::group_by(geo_id, civ_name) %>%
+    summarize(
+        geometry = geometry[1],
+        Unweighted_Importance = sum(Rescaled_Value),
+        color = dplyr::if_else(Unweighted_Importance < 20, "white", "black"),
+        .groups = "drop"
+    )
+```
+
+```{r fig.width = 5.5, fig.asp = 1, fig.align = "center", warning = FALSE}
+plot_sf(ca_single, "Unweighted_Importance") +
+    geom_sf_text(
+        aes(label = geo_id, geometry = geometry),
+        size = 3, color = ca_single$color,
+        fontface = "bold"
+    )
+```
+
+```{r, results = "asis"}
+split <- nrow(ca_single) / 3
+
+purrr::map(
+  1:3,
+  function(n) {
+    ca_single %>%
+      dplyr::select(GEO_ID = geo_id, Civic_Association = civ_name) %>%
+      dplyr::mutate(
+        Civic_Association = stringr::str_replace(Civic_Association, " - ", "-")
+      ) %>%
+      dplyr::filter(
+        GEO_ID <= n * split,
+        GEO_ID > (n-1) * split
+      )
+  }
+) %>%
+  kableExtra::kbl(booktabs = TRUE) %>%
+  kableExtra::kable_styling(
+    latex_options = c("striped", "hold_position"),
+    font_size = 8
+  )
+```
+
