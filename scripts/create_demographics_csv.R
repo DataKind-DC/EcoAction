@@ -15,6 +15,25 @@ source("src/sf_helpers.R")
 # census_api_key(key="<insert_key_here>", install=TRUE, overwrite = TRUE)
 
 
+# Define Function to calculate percentages ---------------------------------------------
+calc_demographics_pct <- function(df) {
+  dplyr::mutate(
+    df,
+    pop_nonwhite = tot_pop_race - pop_white,
+    pct_white = pop_white / tot_pop_race * 100,
+    pct_nonwhite = 100 - pct_white,
+    pct_black = pop_black / tot_pop_race * 100,
+    pct_asian = pop_asian / tot_pop_race * 100,
+    pct_pac_isl = pop_pac_isl / tot_pop_race * 100,
+    pct_native = pop_native / tot_pop_race * 100,
+    pct_other = pop_other / tot_pop_race * 100,
+    pct_two_plus = pop_two_plus / tot_pop_race * 100,
+    pct_hisp = pop_hisp / tot_pop_hisp * 100,
+    pct_not_hisp = pop_not_hisp / tot_pop_hisp * 100,
+    pct_in_poverty = pop_in_poverty / tot_pop_income * 100,
+  )
+}
+
 # Get ACS Demographic Data -----------------------------------------------------
 # Extract ACS 5-year estimates at the block group (or any larger
 # geography) using the tidycensus package.
@@ -66,22 +85,7 @@ create_acs_demographics_csv <- function(geography, file_name) {
   acs_df <- dplyr::rename(acs_df, c("geo_id" = "GEOID"))
 
   # Calculate percentages
-  acs_df <- dplyr::mutate(
-    acs_df,
-    pop_nonwhite = tot_pop_race - pop_white,
-    pct_white = pop_white / tot_pop_race * 100,
-    pct_nonwhite = 100 - pct_white,
-    pct_black = pop_black / tot_pop_race * 100,
-    pct_asian = pop_asian / tot_pop_race * 100,
-    pct_pac_isl = pop_pac_isl / tot_pop_race * 100,
-    pct_native = pop_native / tot_pop_race * 100,
-    pct_other = pop_other / tot_pop_race * 100,
-    pct_two_plus = pop_two_plus / tot_pop_race * 100,
-    pct_hisp = pop_hisp / tot_pop_hisp * 100,
-    pct_not_hisp = pop_not_hisp / tot_pop_hisp * 100,
-    # pct_nonwhitenh = 100 - pct_white_not_hisp,
-    pct_in_poverty = pop_in_poverty / tot_pop_income * 100,
-  )
+  acs_df <- calc_demographics_pct(acs_df)
 
   # Fill nans with 0
   acs_df[is.na(acs_df)] <- 0
