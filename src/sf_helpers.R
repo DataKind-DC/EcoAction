@@ -26,6 +26,13 @@ get_poly_with_area <- function(sf_df) {
 }
 
 
+fix_sf_agr_error <- function(sf) {
+    #' Fixes sf renaming problems
+    sf %>%
+        dplyr::mutate()
+}
+
+
 area_of_top_on_base <- function(base_df, top_df) {
     # Units in m^2
     # TODO: docstring
