@@ -78,7 +78,7 @@ create_acs_demographics_csv <- function(geography, file_name) {
     pct_other = pop_other / tot_pop_race * 100,
     pct_two_plus = pop_two_plus / tot_pop_race * 100,
     pct_hisp = pop_hisp / tot_pop_hisp * 100,
-    pct_white_not_hisp = pop_white_not_hisp / tot_pop_hisp * 100,
+    pct_not_hisp = pop_not_hisp / tot_pop_hisp * 100,
     # pct_nonwhitenh = 100 - pct_white_not_hisp,
     pct_in_poverty = pop_in_poverty / tot_pop_income * 100,
   )
