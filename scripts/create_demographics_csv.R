@@ -136,52 +136,47 @@ create_block_group_area_in_civics_csv()
 
 
 # Estimate Civic Association Demographic Data ----------------------------------
-# Use the pct of area of each block group to estimate statistics for
-# civic associations
+# Use areal interpolation from `areal` pkg to estimate statistics for
+# civic associations from block groups
 
 create_demographics_civ_assoc_csv <- function() {
+  #' Use interpolate_bg_to_ca to interpolate extensive variables from block
+  #' group to civic association, then calculate percentages
 
-  bg_areas <- readr::read_csv(
-    file = 'data/block_group_area_in_civics.csv',
-    col_types = readr::cols(
-      geo_id = col_character()
-    )
+  # DEFINE Variables for interpolation
+  vars_to_interpolate <- c(
+    # race
+    "tot_pop_race", "pop_white", "pop_nonwhite", "pop_black", "pop_native",
+    "pop_asian", "pop_pac_isl", "pop_other", "pop_two_plus",
+    # ethinicity
+    "tot_pop_hisp", "pop_hisp", "pop_not_hisp",
+    # income
+    "tot_pop_income", "pop_in_poverty", "per_cap_income"
   )
 
-  # This is a df where the cells are the percentage of the area of the block
-  # group (rows) in each civic association (columns).
-  bg_areas_pct <- select(bg_areas, -geo_id, -area) / bg_areas$area
+  # Combine demographics with shapefile data
+  bg_geo <- read_geos_block_group()
+  bg_dem <- read_demographics_block_group_csv()
+  bg_geo_dem <- bg_geo %>%
+    full_join(bg_dem, by = "geo_id")
 
-  bg_dem_df <- dplyr::select(read_demographics_block_group_csv(),
-                             "geo_id",
-                             "tot_pop_race",
-                             "pop_nonwhite",
-                             "tot_pop_income",
-                             "pop_in_poverty"
+  ca_geo <- read_geos_civ_assoc() %>%
+    fix_sf_agr_error() # fixes rename.sf error
+
+  # Complete interpolation
+  civ_dem_df <- interpolate_bg_to_ca(
+    bg_geo_dem,
+    geo_id,
+    ca_geo,
+    geo_id,
+    weight = "sum",
+    extensive = vars_to_interpolate,
+    output = "tibble"
   )
 
-  # Initialize a df for the civic associations demographic data
-  civ_df <- tibble(read_geos_civ_assoc())
-  civ_dem_df <- select(civ_df, -geometry)
-
-  # First, for each civic association, multiply the tot_pop_race count in the
-  # block group with the percentage of the block group that is in that civic
-  # association. (This is not perfect because we don't know the density variation
-  # in the block groups, but it should a decent approximation.)
-  # Then, squash the columns to give a single value for each civic
-  # association
-  civ_dem_df$tot_pop_race <- colSums(bg_areas_pct * bg_dem_df$tot_pop_race)
-
-  # Do the same thing for each demographic category
-  civ_dem_df$pop_nonwhite <- colSums(bg_areas_pct * bg_dem_df$pop_nonwhite)
-  civ_dem_df$tot_pop_income <- colSums(bg_areas_pct * bg_dem_df$tot_pop_income)
-  civ_dem_df$pop_in_poverty <- colSums(bg_areas_pct * bg_dem_df$pop_in_poverty)
-
-  civ_dem_df <- mutate(
-    civ_dem_df,
-    pct_nonwhite = pop_nonwhite / tot_pop_race * 100,
-    pct_in_poverty = pop_in_poverty / tot_pop_income * 100,
-  )
+  # Calculate demographic percentages for civic associations
+  civ_dem_df <- civ_dem_df %>%
+    calc_demographics_pct()
 
   write.csv(civ_dem_df, 'data/demographics/demographics_civic_association.csv', row.names = FALSE)
 }
