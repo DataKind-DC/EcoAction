@@ -33,6 +33,33 @@ fix_sf_agr_error <- function(sf) {
         dplyr::mutate()
 }
 
+st_transform_setop <- function(sf) {
+    #' Transforms sf object CRS to map projection format used by Google Maps/OSM
+    #' for use with set operations (e.g. intersections, unions, interpolation,
+    #' etc). Also saves original CRS for restoration after operation.
+    #'
+    #' @param sf sf object to transform
+
+    # add initial CRS to metadata (so it can be reversed)
+    attr(sf, "initial_crs") <- sf::st_crs(sf)
+
+    sf <- sf::st_transform(sf, "EPSG:3857")
+
+    sf
+}
+
+st_transform_setop_undo <- function(sf) {
+    #' Reverses transformation of `st_transform_setop()`
+    #'
+    #' @param sf sf object to transform
+
+    sf <- sf::st_transform(sf, attr(sf, "initial_crs"))
+
+    # remove extra metadata added in `st_transform_setop()`
+    attr(sf, "initial_crs") <- NULL
+
+    sf
+}
 
 interpolate_bg_to_ca <- function(bg_sf, bg_id, ca_sf, ca_id, weight = "sum",
                                  extensive, intensive, output = "tibble") {
