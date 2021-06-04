@@ -61,6 +61,25 @@ st_transform_setop_undo <- function(sf) {
     sf
 }
 
+st_intersection_safe <- function(x, y, ...) {
+    #' Performs sf intersection safely (i.e. ensuring non-geo projection)
+    #' and returns result in original projection of x; use this if
+    #' st_intersection warns: "although coordinates are longitude/latitude,
+    #' <sf_function> assumes that they are planar"
+    #'
+    #' @param x,y,... see sf::st_intersection() for argument details
+
+    crs_init <- sf::st_crs(x)
+
+    x_t <- st_transform_setop(x)
+    y_t <- st_transform_setop(y)
+
+    out <- sf::st_intersection(x = x_t, y = y_t, ...) %>%
+        sf::st_crs(crs_init)
+
+    out
+}
+
 interpolate_bg_to_ca <- function(bg_sf, bg_id, ca_sf, ca_id, weight = "sum",
                                  extensive, intensive, output = "tibble") {
     #' Performs areal weighted interpolation (ensuring correct CRS)
