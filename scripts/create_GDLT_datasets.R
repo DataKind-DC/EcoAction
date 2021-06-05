@@ -100,3 +100,24 @@ var_rank_desc <- c(
 
 bg_gdlt <- create_GDLT_df("block_group", var_rank_asc, var_rank_desc)
 civ_gdlt <- create_GDLT_df("civic_association", var_rank_asc, var_rank_desc)
+
+
+# NEED TO DO (notes from Allen) -------------------------------------------
+
+# IN THIS SCRIPT
+
+# 1. save full datasets to disk (commit?)
+#   - i'd like to correct the 4 tree locations that are currently outside of
+#   arlington county before we save these to disk (their values in `row` are
+#   353,  471,  607, and 2469)
+#   - also this script relies on the fix/geos I recently opened a pull request
+#   for
+# 2. subset datasets to give EcoAction clean datasets in google sheets
+#   - should probably just include geo_id, civ-name, the rank variables, and
+#   the variables the rankings are based on
+#   - definitely drop the geometry for these datasets
+# 3. save subsets to disk
+
+# MANUALLY
+# 4. Upload subsets to google drive and recreate google sheets and pivot tables
+# with the updated files
