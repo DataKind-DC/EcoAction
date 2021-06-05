@@ -65,3 +65,38 @@ create_GDLT_df <- function(geo, vtr_asc, vtr_desc) {
 
     full_df
 }
+
+
+# Define variables to rank ------------------------------------------------
+
+# Identify vars of interest and rank direction
+# For direction: asc = ascending, i.e. low values of greater interest;
+#   desc = descending, i.e. high values of greater interest
+
+# NOTE (from Allen): pct_white, pct_not_hisp, and pct_open_plantable were left
+#   out because they are redundant
+var_rank_asc <- c(
+    # income
+    "per_cap_income",
+    # land area
+    "pct_canopy"
+)
+
+var_rank_desc <- c(
+    # race
+    "pct_nonwhite", "pct_black", "pct_asian",
+    "pct_pac_isl", "pct_native", "pct_other",
+    "pct_two_plus",
+    # ethinicity
+    "pct_hisp",
+    # income
+    "pct_in_poverty",
+    # land area
+    "pct_plantable"
+)
+
+
+# Create & save full GDLT datasets ----------------------------------------
+
+bg_gdlt <- create_GDLT_df("block_group", var_rank_asc, var_rank_desc)
+civ_gdlt <- create_GDLT_df("civic_association", var_rank_asc, var_rank_desc)
