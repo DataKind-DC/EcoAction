@@ -180,3 +180,10 @@ area_of_top_on_base <- function(base_df, top_df) {
     df[is.na(df)] <- 0
     df
 }
+
+drop_geometry <- function(sf) {
+    df <- tibble::as_tibble(sf) %>%
+        dplyr::select(-geometry)
+
+    df
+}
