@@ -163,22 +163,23 @@ read_shp_file <- function(file_path) {
 # }
 
 read_geos_block_group <- function() {
-  # TODO: Add doc string
-  cbg <- read_shp_file("data/shape_files/Geos/Census_Block_Groups_2010_Polygons")
-  cbg <- cbg[, (names(cbg) %in% c("FULLBLOCKG", "geometry"))]
-  colnames(cbg) <- c("geo_id", "geometry")
-  cbg <- cbg[order(cbg$geo_id),]
-  row.names(cbg) <- NULL
+  #' Loads block group geometries, including tidying names and dropping extra
+  #' variables
+  cbg <- read_shp_file("data/shape_files/Geos/Census_Block_Groups_2010_Polygons") %>%
+    dplyr::select(geo_id = FULLBLOCKG, geometry) %>%
+    # ensure geo_id plays nicely in joins
+    dplyr::mutate(geo_id = as.character(geo_id))
+
   cbg
 }
 
 read_geos_tract <- function() {
   # TODO: Add doc string
-  tract <- read_shp_file("data/shape_files/Geos/Census_Tract_2010_Polygons")
-  tract <- tract[, (names(tract) %in% c("FULLTRACTI", "geometry"))]
-  colnames(tract) <- c("geo_id", "geometry")
-  tract <- tract[order(tract$geo_id),]
-  row.names(tract) <- NULL
+  tract <- read_shp_file("data/shape_files/Geos/Census_Tract_2010_Polygons") %>%
+    dplyr::select(geo_id = FULLTRACTI, geometry) %>%
+    # ensure geo_id plays nicely in joins
+    dplyr::mutate(geo_id = as.character(geo_id))
+
   tract
 }
 
@@ -195,19 +196,20 @@ read_geos_civ_assoc <- function() {
       )
     }
   )
-  ca <- ca[, (names(ca) %in% c("CIVIC", "GIS_ID", "modified", "geometry"))]
-  colnames(ca) <- c("civ_name", "geo_id", "modified", "geometry")
-  ca <- ca[order(ca$civ_name),]
-  row.names(ca) <- NULL
+  ca <- ca %>%
+    dplyr::select(civ_name = CIVIC, geo_id = GIS_ID, modified, geometry) %>%
+    # ensure geo_id plays nicely in joins
+    dplyr::mutate(geo_id = as.character(geo_id))
+
   ca
 }
 
 read_geos_civ_assoc_original <- function() {
-  ca <- read_shp_file("data/shape_files/Geos/Civic_Association_Polygons")
-  ca <- ca[, (names(ca) %in% c("CIVIC", "GIS_ID", "geometry"))]
-  colnames(ca) <- c("civ_name", "geo_id", "geometry")
-  ca <- ca[order(ca$civ_name),]
-  row.names(ca) <- NULL
+  ca <- read_shp_file("data/shape_files/Geos/Civic_Association_Polygons") %>%
+    dplyr::select(civ_name = CIVIC, geo_id = GIS_ID, geometry) %>%
+    # ensure geo_id plays nicely in joins
+    dplyr::mutate(geo_id = as.character(geo_id))
+
   ca
 }
 
