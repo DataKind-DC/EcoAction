@@ -80,6 +80,27 @@ st_intersection_safe <- function(x, y, ...) {
     out
 }
 
+st_count_safe <- function(x, y, ...) {
+    #' Adds counts of points in polygons
+    #'
+    #' Counts points/polygons that intersect with polygons safely (i.e.
+    #' ensuring non-geo projection)
+    #'
+    #' @param x sf polygon object that counts will be added to
+    #' @param y sf object that will be counted (by intersection)
+    #' @param ... arguments passed on to sf::st_intersects()
+
+    crs_init <- sf::st_crs(x)
+
+    x_t <- st_transform_setop(x)
+    y_t <- st_transform_setop(y)
+
+    counts <- sf::st_intersects(x = x_t, y = y_t, ...) %>%
+        lengths()
+
+    counts
+}
+
 interpolate_bg_to_ca <- function(bg_sf, bg_id, ca_sf, ca_id, weight = "sum",
                                  extensive, intensive, output = "tibble") {
     #' Performs areal weighted interpolation (ensuring correct CRS)
