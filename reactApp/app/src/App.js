@@ -15,8 +15,11 @@ import {TextField, Button} from '@material-ui/core'
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import bbox from '@turf/bbox';
 import './App.css'
-
 import TreeInfo from './tree-info';
+import mapboxgl from "mapbox-gl"; // This is a dependency of react-map-gl even if you didn't explicitly install it
+
+// eslint-disable-next-line import/no-webpack-loader-syntax
+mapboxgl.workerClass = require("worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker").default;
 
 const blockGroupNames = Array.from({length: 181}, (_, i) => {
   return {bg_name: (i + 1).toString()}
