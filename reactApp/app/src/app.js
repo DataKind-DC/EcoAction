@@ -1,6 +1,5 @@
 import * as React from 'react';
 import {useState, useEffect} from 'react';
-import {render} from 'react-dom';
 import MapGL, {
   Popup,
   NavigationControl,
@@ -12,22 +11,24 @@ import MapGL, {
   Source,
   Layer
 } from 'react-map-gl';
+import {TextField, Button} from '@material-ui/core'
+import Autocomplete from '@material-ui/lab/Autocomplete';
 import bbox from '@turf/bbox';
+import './App.css'
 
-import ControlPanel from './control-panel';
-import Pins from './pins';
-import CityInfo from './city-info';
-import CITIES from '../cities.json';
+import TreeInfo from './tree-info';
 
-// const {MAPBOX_TOKEN} = process.env
-const MAPBOX_TOKEN = 'pk.eyJ1IjoiYnJlbnRtYWdneSIsImEiOiJja2Q2OGdjdjQwdnl5MnhvZGF5cGhhZ20zIn0.OOQgT69LrC33k4MGpJpziw' // Set your mapbox token here
+const blockGroupNames = Array.from({length: 181}, (_, i) => {
+  return {bg_name: (i + 1).toString()}
+})
+const {REACT_APP_TOKEN} = process.env
 
 const geolocateStyle = {top: 0, left: 0, padding: '10px'};
 const fullscreenControlStyle = {top: 36, left: 0, padding: '10px'};
 const navStyle = {top: 72, left: 0, padding: '10px'};
 const scaleControlStyle = {bottom: 36, left: 0, padding: '10px'};
 
-export default function App() {
+function App() {
 
   const minLng = -77.17424106299076
   const maxLng = -77.02886958304389
@@ -42,14 +43,16 @@ export default function App() {
     pitch: 0
   });
   const [popupInfo, setPopupInfo] = useState(null);
-  // const [blockGroupName, setBlockGroupName] = useState(blockGroupNames[0])
-  const [currentBlockGroup, setCurrentBlockGroup] = useState(null)
+  const [currentBlockGroupName, setCurrentBlockGroupName] = useState(null)
+  const [currentBlockGroupMeta, setCurrentBlockGroupMeta] = useState(null)
   const [blockGroupGeos, setBlockGroupGeos] = useState(null);
+
+  // TODO: How do I get these before rendering?
   const [blockGroupNamePlacements, setBlockGroupNamePlacements] = useState(null);
   const [openPlantable, setOpenPlantable] = useState(null);
   const [plantedTrees, setPlantedTrees] = useState(null);
-  // const [blockGroupMeta, setBlockGroupMeta] = useState(null);
-  //
+  const [blockGroupMeta, setBlockGroupMeta] = useState(null);
+
   function arlingtonBoundsViewport() {
     let width = window.innerWidth;
     let height = window.innerHeight;
@@ -84,18 +87,17 @@ export default function App() {
         (data) => {
           setBlockGroupNamePlacements(data.data)
         })
-    // fetch(`/api/blockgroupmeta`)
-    //   .then((res) => res.json())
-    //   .then(
-    //     (data) => {
-    //       setBlockGroupMeta(data.data)
-    //     })
+    fetch(`/api/blockgroupmeta`)
+      .then((res) => res.json())
+      .then(
+        (data) => {
+          setBlockGroupMeta(data.data)
+        })
   }, [])
 
   useEffect(() => {
-    if (currentBlockGroup) {
-
-      fetch(`/api/blockgroup/${currentBlockGroup.geo_id}`)
+    if (currentBlockGroupMeta) {
+      fetch(`/api/blockgroup/${currentBlockGroupMeta.geo_id}`)
         .then((res) => res.json())
         .then(
           (data) => {
@@ -104,14 +106,14 @@ export default function App() {
           }
         )
     }
-  }, [currentBlockGroup])
+  }, [currentBlockGroupMeta])
 
   const layerStyle = {
     id: 'block-groups-line',
     type: 'line',
     paint: {
-      'line-width': 1,
-      'line-color': '#0080ef'
+      'line-width': 1.2, // TODO: increase thickness as zoom increases
+      'line-color': '#0b0d10'
     }
   }
   const bgFillStyle = {
@@ -164,15 +166,20 @@ export default function App() {
       ]
     }
   }
-  const onClick = event => {
-    const feature = event.features[0];
-    if (feature) {
-      const bgName = feature.properties.bg_name
-      const bgGeo = blockGroupGeos.features.find((bg) => bg.properties.bg_name === bgName)
+
+  useEffect(() => {
+    if (currentBlockGroupName && blockGroupMeta) {
+      const meta = blockGroupMeta.find((bg) => bg.bg_name === currentBlockGroupName.bg_name)
+      setCurrentBlockGroupMeta(meta)
+    }
+  }, [currentBlockGroupName])
+
+  useEffect(() => {
+    if (blockGroupGeos) {
+      const bgGeo = blockGroupGeos.features.find((bg) => bg.properties.bg_name === currentBlockGroupMeta.bg_name)
       // calculate the bounding box of the feature
       const [minLng, minLat, maxLng, maxLat] = bbox(bgGeo);
       // construct a viewport instance from the current state
-      console.log(viewport)
       const vp = new WebMercatorViewport(viewport);
       const {longitude, latitude, zoom} = vp.fitBounds(
         [[minLng, minLat], [maxLng, maxLat]],
@@ -187,22 +194,48 @@ export default function App() {
         }),
         transitionDuration: 500
       })
-      setCurrentBlockGroup(feature.properties)
     }
-  };
+  }, [currentBlockGroupMeta])
+
+  function onClick(event) {
+    const feature = event.features[0];
+    if (feature) {
+      switch (feature.layer.id) {
+        case 'block-groups-fill':
+          setCurrentBlockGroupName({bg_name: feature.properties.bg_name})
+          break
+        case 'planted-trees':
+          const [lng, lat] = event.lngLat
+          setPopupInfo({
+            ...feature.properties,
+            longitude: lng,
+            latitude: lat,
+          })
+          break
+        default:
+          break
+      }
+    }
+  }
+
+  // function resetMap() {
+  //   arlingtonBoundsViewport()
+  //   setPlantedTrees(null)
+  //   setOpenPlantable(null)
+  // }
 
 
   return (
-    <>
+    <div className="map">
       <MapGL
         {...viewport}
         width="100%"
         height="100%"
-        mapStyle="mapbox://styles/brentmaggy/ckp9w138f35yi17t83b0xlklo"
-        // mapStyle="mapbox://styles/mapbox/light-v9"
-        interactiveLayerIds={['block-groups-fill']}
+        // mapStyle="mapbox://styles/brentmaggy/ckp9w138f35yi17t83b0xlklo"
+        mapStyle="mapbox://styles/mapbox/basic-v9"
+        interactiveLayerIds={['block-groups-fill', 'planted-trees']}
         onViewportChange={setViewport}
-        mapboxApiAccessToken={MAPBOX_TOKEN}
+        mapboxApiAccessToken={REACT_APP_TOKEN}
         onClick={onClick}
         onLoad={arlingtonBoundsViewport}
       >
@@ -219,18 +252,16 @@ export default function App() {
         <Source id="planted-trees" type="geojson" data={plantedTrees}>
           <Layer {...plantedTreesStyle} />
         </Source>
-        <Pins data={CITIES} onClick={setPopupInfo}/>
-
         {popupInfo && (
           <Popup
             tipSize={5}
-            anchor="top"
+            anchor="bottom"
             longitude={popupInfo.longitude}
             latitude={popupInfo.latitude}
-            closeOnClick={false}
+            closeOnClick={true}
             onClose={setPopupInfo}
           >
-            <CityInfo info={popupInfo}/>
+            <TreeInfo info={popupInfo}/>
           </Popup>
         )}
 
@@ -239,12 +270,29 @@ export default function App() {
         <NavigationControl style={navStyle}/>
         <ScaleControl style={scaleControlStyle}/>
       </MapGL>
-
-      <ControlPanel/>
-    </>
+      <div className="sidebar">
+        <Button variant={"contained"} color={"primary"} onClick={() => {
+          arlingtonBoundsViewport()
+        }}> Zoom Out </Button>
+        <Autocomplete
+          value={currentBlockGroupName}
+          onChange={(event, newValue) => {
+            setCurrentBlockGroupName(newValue)
+          }}
+          id="combo-box-demo"
+          color="primary"
+          options={blockGroupNames}
+          getOptionLabel={(option) => option.bg_name}
+          style={{width: 100, padding: 10}}
+          disableClearable={true}
+          getOptionSelected={(option, value) => option.bg_name === value.bg_name}
+          renderInput={(params) => <TextField {...params} label="Block Group" variant="outlined"/>}
+        />
+      </div>
+      {/*<ControlPanel info={currentBlockGroup}/>*/}
+    </div>
   );
 }
 
-export function renderToDom(container) {
-  render(<App/>, container);
-}
+
+export default App;
