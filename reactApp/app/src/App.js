@@ -25,6 +25,7 @@ const blockGroupNames = Array.from({length: 181}, (_, i) => {
   return {bg_name: (i + 1).toString()}
 })
 const {REACT_APP_TOKEN} = process.env
+const apiUrl = process.env.REACT_APP_API_URI
 
 const geolocateStyle = {top: 0, left: 0, padding: '10px'};
 const fullscreenControlStyle = {top: 36, left: 0, padding: '10px'};
@@ -78,19 +79,19 @@ function App() {
 
   useEffect(() => {
     // TODO: can I do this outside an effect since I only need to do it once?
-    fetch(`/api/blockgroups`)
+    fetch(`${apiUrl}/api/blockgroups`)
       .then((res) => res.json())
       .then(
         (data) => {
           setBlockGroupGeos(data.data)
         })
-    fetch(`/api/blockgroupnameplacements`)
+    fetch(`${apiUrl}/api/blockgroupnameplacements`)
       .then((res) => res.json())
       .then(
         (data) => {
           setBlockGroupNamePlacements(data.data)
         })
-    fetch(`/api/blockgroupmeta`)
+    fetch(`${apiUrl}/api/blockgroupmeta`)
       .then((res) => res.json())
       .then(
         (data) => {
@@ -100,7 +101,7 @@ function App() {
 
   useEffect(() => {
     if (currentBlockGroupMeta) {
-      fetch(`/api/blockgroup/${currentBlockGroupMeta.geo_id}`)
+      fetch(`${apiUrl}/api/blockgroup/${currentBlockGroupMeta.geo_id}`)
         .then((res) => res.json())
         .then(
           (data) => {
