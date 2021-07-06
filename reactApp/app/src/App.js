@@ -236,7 +236,7 @@ function App() {
         width="100%"
         height="100%"
         // mapStyle="mapbox://styles/brentmaggy/ckp9w138f35yi17t83b0xlklo"
-        mapStyle="mapbox://styles/mapbox/basic-v9"
+        mapStyle="mapbox://styles/brentmaggy/ckqrgap2l3vbm17o5zf3cpwbm" // streets-simple
         interactiveLayerIds={['block-groups-fill', 'planted-trees']}
         onViewportChange={setViewport}
         mapboxApiAccessToken={REACT_APP_TOKEN}
@@ -277,7 +277,7 @@ function App() {
       <div className="sidebar">
         <Button variant={"contained"} color={"primary"} onClick={() => {
           arlingtonBoundsViewport()
-        }}> Zoom Out </Button>
+        }}> Reset Zoom </Button>
         <Autocomplete
           value={currentBlockGroupName}
           onChange={(event, newValue) => {
