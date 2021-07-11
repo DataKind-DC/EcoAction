@@ -110,6 +110,10 @@ function getBlockGroupTrees(geo_id) {
   }
 }
 
+app.get('/', (req, res) => {
+  res.send('ok')
+})
+
 app.get('/api/blockgroup/:geo_id', (req, res) => {
   const boundary = getBlockGroupData(req.params.geo_id)
   const trees = getBlockGroupTrees(req.params.geo_id)
