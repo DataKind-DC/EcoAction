@@ -18,6 +18,7 @@ import './App.css'
 import TreeInfo from './tree-info';
 import mapboxgl from "mapbox-gl"; // This is a dependency of react-map-gl even if you didn't explicitly install it
 
+// Needed for now to address mapbox-gl bug
 // eslint-disable-next-line import/no-webpack-loader-syntax
 mapboxgl.workerClass = require("worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker").default;
 
@@ -42,7 +43,7 @@ function App() {
   const [viewport, setViewport] = useState({
     latitude: (minLat + maxLat) / 2,
     longitude: (minLng + maxLng) / 2,
-    zoom: 12,
+    zoom: 10,
     bearing: 0,
     pitch: 0
   });
