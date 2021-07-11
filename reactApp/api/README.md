@@ -3,6 +3,7 @@ Steps needed to deploy
 
 ## Deploying
 1. chmod +x ./deploy_dev.sh
+1. chmod +x ./deploy_prod.sh
 
 
 TODO
