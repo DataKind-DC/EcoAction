@@ -1,10 +1,14 @@
 body {
   margin: 0;
-  background: #000;
+  background: #a7beea;
 }
 .map {
   width: 100vw;
   height: 100vh;
+}
+
+.wrapper {
+  padding: 2px;
 }
 
 .control-panel {
@@ -22,7 +26,6 @@ body {
   text-transform: uppercase;
   outline: none;
 }
-
 
 .sidebar {
   background-color: rgba(255, 255, 255, 0.9);
