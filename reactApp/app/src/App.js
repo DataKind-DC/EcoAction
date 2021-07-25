@@ -15,6 +15,8 @@ import {TextField, Button} from '@material-ui/core'
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import bbox from '@turf/bbox';
 import './App.css'
+import {apiTokenValid} from './Library'
+import Login from './components/Login/Login'
 import TreeInfo from './tree-info';
 import mapboxgl from "mapbox-gl"; // This is a dependency of react-map-gl even if you didn't explicitly install it
 
@@ -223,78 +225,72 @@ function App() {
     }
   }
 
-  // function resetMap() {
-  //   arlingtonBoundsViewport()
-  //   setPlantedTrees(null)
-  //   setOpenPlantable(null)
-  // }
-
-
   return (
-    <div className="map">
-      <MapGL
-        {...viewport}
-        width="100%"
-        height="100%"
-        // mapStyle="mapbox://styles/brentmaggy/ckp9w138f35yi17t83b0xlklo"
-        mapStyle="mapbox://styles/brentmaggy/ckqrgap2l3vbm17o5zf3cpwbm" // streets-simple
-        interactiveLayerIds={['block-groups-fill', 'planted-trees']}
-        onViewportChange={setViewport}
-        mapboxApiAccessToken={REACT_APP_TOKEN}
-        onClick={onClick}
-        onLoad={arlingtonBoundsViewport}
-      >
-        <Source id="block-groups" type="geojson" data={blockGroupGeos}>
-          <Layer {...layerStyle} />
-          <Layer {...bgFillStyle} />
-        </Source>
-        <Source id="block-group-names" type="geojson" data={blockGroupNamePlacements}>
-          <Layer {...blockGroupNamesStyle} />
-        </Source>
-        <Source id="open-plantable" type="geojson" data={openPlantable}>
-          <Layer {...openPlantableStyle} />
-        </Source>
-        <Source id="planted-trees" type="geojson" data={plantedTrees}>
-          <Layer {...plantedTreesStyle} />
-        </Source>
-        {popupInfo && (
-          <Popup
-            tipSize={5}
-            anchor="bottom"
-            longitude={popupInfo.longitude}
-            latitude={popupInfo.latitude}
-            closeOnClick={true}
-            onClose={setPopupInfo}
-          >
-            <TreeInfo info={popupInfo}/>
-          </Popup>
-        )}
+    <div className="wrapper">
+      <div className="map">
+        <MapGL
+          {...viewport}
+          width="100%"
+          height="100%"
+          // mapStyle="mapbox://styles/brentmaggy/ckp9w138f35yi17t83b0xlklo"
+          mapStyle="mapbox://styles/brentmaggy/ckqrgap2l3vbm17o5zf3cpwbm" // streets-simple
+          interactiveLayerIds={['block-groups-fill', 'planted-trees']}
+          onViewportChange={setViewport}
+          mapboxApiAccessToken={REACT_APP_TOKEN}
+          onClick={onClick}
+          onLoad={arlingtonBoundsViewport}
+        >
+          <Source id="block-groups" type="geojson" data={blockGroupGeos}>
+            <Layer {...layerStyle} />
+            <Layer {...bgFillStyle} />
+          </Source>
+          <Source id="block-group-names" type="geojson" data={blockGroupNamePlacements}>
+            <Layer {...blockGroupNamesStyle} />
+          </Source>
+          <Source id="open-plantable" type="geojson" data={openPlantable}>
+            <Layer {...openPlantableStyle} />
+          </Source>
+          <Source id="planted-trees" type="geojson" data={plantedTrees}>
+            <Layer {...plantedTreesStyle} />
+          </Source>
+          {popupInfo && (
+            <Popup
+              tipSize={5}
+              anchor="bottom"
+              longitude={popupInfo.longitude}
+              latitude={popupInfo.latitude}
+              closeOnClick={true}
+              onClose={setPopupInfo}
+            >
+              <TreeInfo info={popupInfo}/>
+            </Popup>
+          )}
 
-        <GeolocateControl style={geolocateStyle}/>
-        <FullscreenControl style={fullscreenControlStyle}/>
-        <NavigationControl style={navStyle}/>
-        <ScaleControl style={scaleControlStyle}/>
-      </MapGL>
-      <div className="sidebar">
-        <Button variant={"contained"} color={"primary"} onClick={() => {
-          arlingtonBoundsViewport()
-        }}> Reset Zoom </Button>
-        <Autocomplete
-          value={currentBlockGroupName}
-          onChange={(event, newValue) => {
-            setCurrentBlockGroupName(newValue)
-          }}
-          id="combo-box-demo"
-          color="primary"
-          options={blockGroupNames}
-          getOptionLabel={(option) => option.bg_name}
-          style={{width: 100, padding: 10}}
-          disableClearable={true}
-          getOptionSelected={(option, value) => option.bg_name === value.bg_name}
-          renderInput={(params) => <TextField {...params} label="Block Group" variant="outlined"/>}
-        />
+          <GeolocateControl style={geolocateStyle}/>
+          <FullscreenControl style={fullscreenControlStyle}/>
+          <NavigationControl style={navStyle}/>
+          <ScaleControl style={scaleControlStyle}/>
+        </MapGL>
+        <div className="sidebar">
+          <Login/>
+          <Button variant={"contained"} color={"primary"} onClick={arlingtonBoundsViewport}> Reset Zoom </Button>
+          <Autocomplete
+            value={currentBlockGroupName}
+            onChange={(event, newValue) => {
+              setCurrentBlockGroupName(newValue)
+            }}
+            id="combo-box-demo"
+            color="primary"
+            options={blockGroupNames}
+            getOptionLabel={(option) => option.bg_name}
+            style={{width: 100, padding: 10}}
+            disableClearable={true}
+            getOptionSelected={(option, value) => option.bg_name === value.bg_name}
+            renderInput={(params) => <TextField {...params} label="Block Group" variant="outlined"/>}
+          />
+        </div>
+        {/*<ControlPanel info={currentBlockGroup}/>*/}
       </div>
-      {/*<ControlPanel info={currentBlockGroup}/>*/}
     </div>
   );
 }
