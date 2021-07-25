@@ -104,7 +104,12 @@ function App() {
 
   useEffect(() => {
     if (currentBlockGroupMeta) {
-      fetch(`${apiUrl}/api/blockgroup/${currentBlockGroupMeta.geo_id}`)
+      const requestOptions = {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({authenticated: apiTokenValid()})
+      };
+      fetch(`${apiUrl}/api/blockgroup/${currentBlockGroupMeta.geo_id}`, requestOptions)
         .then((res) => res.json())
         .then(
           (data) => {

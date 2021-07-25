@@ -7,12 +7,12 @@ const cors = require('cors')
 const jwt = require('jsonwebtoken')
 const polylabel = require('./polylabel')
 const {getBlockGroupTrees, blockGroupGeos, blockGroupNamePlacements, blockGroupMeta} = require('./library')
-const JWT_SECRET = process.env.JWT_SECRET
+const {JWT_SECRET, EO_USER, EO_PASS} = process.env
 const app = express();
 const PORT = process.env.PORT || 3001;
 app.use(cors({
-  //FIXME: Add prod urls
-  origin: ['http://localhost:3000', 'https://app-dev.d16bszzooeuewl.amplifyapp.com/']
+  //FIXME: Add prod url
+  origin: ['http://localhost:3000', 'https://app-dev.d16bszzooeuewl.amplifyapp.com']
 }))
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
@@ -28,23 +28,22 @@ app.get('/', (req, res) => {
 })
 
 app.post('/login', (req, res) => {
-  const valid = ((req.body.user === 'admin') && (req.body.password === 'pass'))
+  const valid = ((req.body.user === EO_USER) && (req.body.password === EO_PASS))
   if (!valid) {
-    console.log('invalid')
     res.status(401).send({message: 'Invalid username or password'})
   } else {
-    const token = jwt.sign({ sub: 'admin' }, JWT_SECRET, { expiresIn: '1m' });
-
+    const token = jwt.sign({sub: 'admin'}, JWT_SECRET, {expiresIn: '1m'});
     res.send({
       token: token
     });
   }
 });
 
-app.get('/api/blockgroup/:geo_id', (req, res) => {
+app.post('/api/blockgroup/:geo_id', (req, res) => {
+  const authenticated = req.body.authenticated
   const boundary = getBlockGroupData(req.params.geo_id)
-  const trees = getBlockGroupTrees(req.params.geo_id)
   const openPlantable = JSON.parse(fs.readFileSync(`./data/open_plantable/op_${req.params.geo_id}.geojson`), 'utf8')['features'][0]
+  const trees = getBlockGroupTrees(req.params.geo_id, authenticated)
 
   res.json({
     boundary: boundary,

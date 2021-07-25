@@ -76,19 +76,21 @@ function createTreePointFeature(treeObj) {
   }
 }
 
-function getBlockGroupTrees(geo_id) {
-  let bgTrees = trees.data.filter((bg) => (bg.block_group_id === geo_id))
+function getBlockGroupTrees(geo_id, authenticated) {
   let bgTreesGeoJson = []
-  bgTrees.forEach((t) => {
-    let latLngMatchI = bgTreesGeoJson.findIndex((geo) => {
-      return (geo.geometry.coordinates.toString() === `${t.long},${t.lat},0`)
+  if (authenticated) {
+    let bgTrees = trees.data.filter((bg) => (bg.block_group_id === geo_id))
+    bgTrees.forEach((t) => {
+      let latLngMatchI = bgTreesGeoJson.findIndex((geo) => {
+        return (geo.geometry.coordinates.toString() === `${t.long},${t.lat},0`)
+      })
+      if (latLngMatchI !== -1) {
+        bgTreesGeoJson[latLngMatchI].properties.treeCount += Number(t.tree_count)
+      } else {
+        bgTreesGeoJson.push(createTreePointFeature(t))
+      }
     })
-    if (latLngMatchI !== -1) {
-      bgTreesGeoJson[latLngMatchI].properties.treeCount += Number(t.tree_count)
-    } else {
-      bgTreesGeoJson.push(createTreePointFeature(t))
-    }
-  })
+  }
   return {
     "type": "FeatureCollection",
     "features": bgTreesGeoJson
