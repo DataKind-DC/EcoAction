@@ -11,8 +11,11 @@ const {JWT_SECRET, EO_USER, EO_PASS} = process.env
 const app = express();
 const PORT = process.env.PORT || 3001;
 app.use(cors({
-  //FIXME: Add prod url
-  origin: ['http://localhost:3000', 'https://app-dev.d16bszzooeuewl.amplifyapp.com']
+  origin: [
+    'http://localhost:3000',
+    'https://app-dev.d16bszzooeuewl.amplifyapp.com',
+    'https://app-prod.d16bszzooeuewl.amplifyapp.com',
+  ]
 }))
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());

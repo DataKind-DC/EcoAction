@@ -2,11 +2,13 @@ import * as React from 'react';
 
 function TreeInfo(props) {
   const {info} = props;
-  const displayName = `Trees Planted: ${info.treeCount}`;
 
   return (
     <div>
-      {displayName}
+      {info.address}
+      <p>
+        <b>{info.treeCount}</b> trees planted
+      </p>
     </div>
   );
 }
