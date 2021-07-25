@@ -22,7 +22,6 @@ function getBlockGroupData(geo_id) {
   return blockGroupGeos['features'].find((bg) => bg.properties.geo_id === geo_id)
 }
 
-
 app.get('/', (req, res) => {
   res.send('ok')
 })
@@ -32,7 +31,7 @@ app.post('/login', (req, res) => {
   if (!valid) {
     res.status(401).send({message: 'Invalid username or password'})
   } else {
-    const token = jwt.sign({sub: 'admin'}, JWT_SECRET, {expiresIn: '1m'});
+    const token = jwt.sign({sub: 'admin'}, JWT_SECRET, {expiresIn: '730d'});
     res.send({
       token: token
     });

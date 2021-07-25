@@ -69,9 +69,13 @@ function preprocessBlockGroups() {
 const {blockGroupGeos, blockGroupNamePlacements} = preprocessBlockGroups()
 
 function createTreePointFeature(treeObj) {
+  const street = treeObj.address_clean.split(',')[0]
   return {
     "type": "Feature",
-    "properties": {"treeCount": Number(treeObj.tree_count)},
+    "properties": {
+      "treeCount": Number(treeObj.tree_count),
+      "address": street
+    },
     "geometry": {"type": "Point", "coordinates": [Number(treeObj.long), Number(treeObj.lat), 0.0]}
   }
 }
@@ -80,16 +84,7 @@ function getBlockGroupTrees(geo_id, authenticated) {
   let bgTreesGeoJson = []
   if (authenticated) {
     let bgTrees = trees.data.filter((bg) => (bg.block_group_id === geo_id))
-    bgTrees.forEach((t) => {
-      let latLngMatchI = bgTreesGeoJson.findIndex((geo) => {
-        return (geo.geometry.coordinates.toString() === `${t.long},${t.lat},0`)
-      })
-      if (latLngMatchI !== -1) {
-        bgTreesGeoJson[latLngMatchI].properties.treeCount += Number(t.tree_count)
-      } else {
-        bgTreesGeoJson.push(createTreePointFeature(t))
-      }
-    })
+    bgTreesGeoJson = bgTrees.map(createTreePointFeature)
   }
   return {
     "type": "FeatureCollection",
