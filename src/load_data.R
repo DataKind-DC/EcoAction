@@ -89,7 +89,7 @@ read_land_area_civic_association_csv <- function() {
     ))
 }
 
-read_tree_data <- function() {
+read_tree_data_raw <- function() {
   #' Read "data/tree_data_consolidated - trees.csv"
   #'
   #' Also converts the columns "long" and "lat" into a single "geography" column
@@ -106,13 +106,33 @@ read_tree_data <- function() {
       lat = col_double(),
       long = col_double()
     )
+  )
+}
+
+read_tree_data <- function() {
+  #' Read "data/tree_data_consolidated - trees.csv"
+  #'
+  #' Also converts the columns "long" and "lat" into a single "geography" column
+  #'
+  #' @returns tibble DataFrame
+  readr::read_csv(
+    file = "data/tree_data_consolidated - trees.csv",
+    col_types = readr::cols(
+      .default = col_character(),
+      row = col_integer(),
+      year = col_integer(),
+      tree_num = col_integer(),
+      tree_count = col_integer(),
+      lat = col_double(),
+      long = col_double()
+    )
   ) %>%
     sf::st_as_sf(
       coords = c("long", "lat"),
       crs = "+proj=longlat +datum=WGS84 +no_defs",
       agr = "constant",
       stringsAsFactors = FALSE,
-      remove = TRUE
+      remove = FALSE
     )
 }
 
