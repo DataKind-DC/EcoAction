@@ -151,9 +151,9 @@ function App() {
     id: 'open-plantable',
     type: 'fill',
     paint: {
-      'fill-outline-color': '#0040c8',
-      'fill-color': '#0080ff', // blue color fill
-      'fill-opacity': 0.3
+      'fill-outline-color': '#964b00',
+      'fill-color': '#964b00', // blue color fill
+      'fill-opacity': 0.2
     }
   }
   const plantedTreesStyle = {
