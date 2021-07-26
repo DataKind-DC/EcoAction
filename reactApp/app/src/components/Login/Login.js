@@ -21,7 +21,7 @@ function getModalStyle() {
 const useStyles = makeStyles((theme) => ({
   paper: {
     position: 'absolute',
-    width: 400,
+    width: 170,
     backgroundColor: theme.palette.background.paper,
     border: '2px solid #000',
     boxShadow: theme.shadows[5],
@@ -74,7 +74,7 @@ export default function Login() {
   const body = (
     <div style={modalStyle} className={classes.paper}>
       {/*<div className="login-wrapper">*/}
-      <h1>Please Log In</h1>
+      <h2>Log In</h2>
       <h3>{errorMessage}</h3>
       <form onSubmit={handleSubmit}>
         <label>
