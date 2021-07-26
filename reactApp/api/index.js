@@ -6,7 +6,7 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const jwt = require('jsonwebtoken')
 const polylabel = require('./polylabel')
-const {getBlockGroupTrees, blockGroupGeos, blockGroupNamePlacements, blockGroupMeta} = require('./library')
+const {getBlockGroupTrees, blockGroupGeos, blockGroupNamePlacements, blockGroupNames} = require('./library')
 const {JWT_SECRET, EO_USER, EO_PASS} = process.env
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -66,9 +66,9 @@ app.get('/api/blockgroupnameplacements', (req, res) => {
   })
 })
 
-app.get('/api/blockgroupmeta', (req, res) => {
+app.get('/api/blockgroupnames', (req, res) => {
   res.json({
-    data: blockGroupMeta
+    data: blockGroupNames
   })
 })
 

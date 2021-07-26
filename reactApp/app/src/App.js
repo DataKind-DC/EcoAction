@@ -18,22 +18,19 @@ import './App.css'
 import {apiTokenValid} from './Library'
 import Login from './components/Login/Login'
 import TreeInfo from './tree-info';
-import mapboxgl from "mapbox-gl"; // This is a dependency of react-map-gl even if you didn't explicitly install it
+import {MapStyles} from './MapStyles';
 
+import mapboxgl from "mapbox-gl";
 // Needed for now to address mapbox-gl bug
 // eslint-disable-next-line import/no-webpack-loader-syntax
 mapboxgl.workerClass = require("worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker").default;
 
+const {REACT_APP_TOKEN, REACT_APP_API_URI} = process.env
+
 const blockGroupNames = Array.from({length: 181}, (_, i) => {
   return {bg_name: (i + 1).toString()}
 })
-const {REACT_APP_TOKEN} = process.env
-const apiUrl = process.env.REACT_APP_API_URI
 
-const geolocateStyle = {top: 0, left: 0, padding: '10px'};
-const fullscreenControlStyle = {top: 36, left: 0, padding: '10px'};
-const navStyle = {top: 72, left: 0, padding: '10px'};
-const scaleControlStyle = {bottom: 36, left: 0, padding: '10px'};
 
 function App() {
 
@@ -55,10 +52,10 @@ function App() {
   const [blockGroupGeos, setBlockGroupGeos] = useState(null);
 
   // TODO: How do I get these before rendering?
-  const [blockGroupNamePlacements, setBlockGroupNamePlacements] = useState(null);
   const [openPlantable, setOpenPlantable] = useState(null);
   const [plantedTrees, setPlantedTrees] = useState(null);
   const [blockGroupMeta, setBlockGroupMeta] = useState(null);
+  const [blockGroupNamePlacements, setBlockGroupNamePlacements] = useState(null);
 
   function arlingtonBoundsViewport() {
     let width = window.innerWidth;
@@ -69,7 +66,7 @@ function App() {
     });
     const {longitude, latitude, zoom} = vp.fitBounds(
       [[minLng, minLat], [maxLng, maxLat]],
-      {padding: 30}
+      {padding: 10}
     );
     setViewport({
       width: width,
@@ -82,24 +79,15 @@ function App() {
 
   useEffect(() => {
     // TODO: can I do this outside an effect since I only need to do it once?
-    fetch(`${apiUrl}/api/blockgroups`)
+    fetch(`${REACT_APP_API_URI}/api/blockgroups`)
       .then((res) => res.json())
-      .then(
-        (data) => {
-          setBlockGroupGeos(data.data)
-        })
-    fetch(`${apiUrl}/api/blockgroupnameplacements`)
+      .then((data) => setBlockGroupGeos(data.data))
+    fetch(`${REACT_APP_API_URI}/api/blockgroupnameplacements`)
       .then((res) => res.json())
-      .then(
-        (data) => {
-          setBlockGroupNamePlacements(data.data)
-        })
-    fetch(`${apiUrl}/api/blockgroupmeta`)
+      .then((data) => setBlockGroupNamePlacements(data.data))
+    fetch(`${REACT_APP_API_URI}/api/blockgroupnames`)
       .then((res) => res.json())
-      .then(
-        (data) => {
-          setBlockGroupMeta(data.data)
-        })
+      .then((data) => setBlockGroupMeta(data.data))
   }, [])
 
   useEffect(() => {
@@ -109,7 +97,7 @@ function App() {
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({authenticated: apiTokenValid()})
       };
-      fetch(`${apiUrl}/api/blockgroup/${currentBlockGroupMeta.geo_id}`, requestOptions)
+      fetch(`${REACT_APP_API_URI}/api/blockgroup/${currentBlockGroupMeta.geo_id}`, requestOptions)
         .then((res) => res.json())
         .then(
           (data) => {
@@ -119,65 +107,6 @@ function App() {
         )
     }
   }, [currentBlockGroupMeta])
-
-  const layerStyle = {
-    id: 'block-groups-line',
-    type: 'line',
-    paint: {
-      'line-width': 1.2, // TODO: increase thickness as zoom increases
-      'line-color': '#0b0d10'
-    }
-  }
-  const bgFillStyle = {
-    id: 'block-groups-fill',
-    type: 'fill',
-    paint: {
-      'fill-color': '#000000',
-      'fill-opacity': 0.05
-    }
-  }
-  const blockGroupNamesStyle = {
-    id: 'block-group-names',
-    type: 'symbol',
-    layout: {
-      'text-field': ['get', 'bg_name'],
-      // 'text-offset': [1000,1000],
-      // 'text-variable-anchor': ['center', 'top', 'bottom', 'left', 'right'],
-      'text-variable-anchor': ['center'],
-      'text-justify': 'auto',
-    }
-  }
-  const openPlantableStyle = {
-    id: 'open-plantable',
-    type: 'fill',
-    paint: {
-      'fill-outline-color': '#964b00',
-      'fill-color': '#964b00', // blue color fill
-      'fill-opacity': 0.2
-    }
-  }
-  const plantedTreesStyle = {
-    id: 'planted-trees',
-    type: 'circle',
-    paint: {
-      'circle-radius': {
-        'base': 1,
-        'stops': [
-          [12, 1.5],
-          [22, 18]
-        ]
-      },
-      'circle-color': [
-        'match',
-        ['get', 'treeCount'],
-        1, '#2e9209',
-        2, '#8aa313',
-        3, '#bb791d', 4, '#bb791d', 5, '#bb791d',
-        6, '#fb683b', 7, '#fb683b', 8, '#fb683b', 9, '#fb683b', 10, '#fb683b',
-        /* other */ '#c92828'
-      ]
-    }
-  }
 
   useEffect(() => {
     if (currentBlockGroupName && blockGroupMeta) {
@@ -209,7 +138,7 @@ function App() {
     }
   }, [currentBlockGroupMeta])
 
-  function onClick(event) {
+  function onMapClick(event) {
     const feature = event.features[0];
     if (feature) {
       switch (feature.layer.id) {
@@ -242,21 +171,21 @@ function App() {
           interactiveLayerIds={['block-groups-fill', 'planted-trees']}
           onViewportChange={setViewport}
           mapboxApiAccessToken={REACT_APP_TOKEN}
-          onClick={onClick}
+          onClick={onMapClick}
           onLoad={arlingtonBoundsViewport}
         >
           <Source id="block-groups" type="geojson" data={blockGroupGeos}>
-            <Layer {...layerStyle} />
-            <Layer {...bgFillStyle} />
+            <Layer {...MapStyles.blockGroupLine} />
+            <Layer {...MapStyles.blockGroupFill} />
           </Source>
           <Source id="block-group-names" type="geojson" data={blockGroupNamePlacements}>
-            <Layer {...blockGroupNamesStyle} />
+            <Layer {...MapStyles.blockGroupNames} />
           </Source>
           <Source id="open-plantable" type="geojson" data={openPlantable}>
-            <Layer {...openPlantableStyle} />
+            <Layer {...MapStyles.openPlantable} />
           </Source>
           <Source id="planted-trees" type="geojson" data={plantedTrees}>
-            <Layer {...plantedTreesStyle} />
+            <Layer {...MapStyles.plantedTrees} />
           </Source>
           {popupInfo && (
             <Popup
@@ -271,10 +200,10 @@ function App() {
             </Popup>
           )}
 
-          <GeolocateControl style={geolocateStyle}/>
-          <FullscreenControl style={fullscreenControlStyle}/>
-          <NavigationControl style={navStyle}/>
-          <ScaleControl style={scaleControlStyle}/>
+          <GeolocateControl style={{top: 0, left: 0, padding: '4px'}}/>
+          <FullscreenControl style={{top: 36, left: 0, padding: '4px'}}/>
+          <NavigationControl style={{top: 72, left: 0, padding: '4px'}}/>
+          <ScaleControl style={{bottom: 22, left: 0, padding: '4px'}}/>
         </MapGL>
         <div className="sidebar">
           <Login/>
@@ -294,11 +223,9 @@ function App() {
             renderInput={(params) => <TextField {...params} label="Block Group" variant="outlined"/>}
           />
         </div>
-        {/*<ControlPanel info={currentBlockGroup}/>*/}
       </div>
     </div>
   );
 }
-
 
 export default App;

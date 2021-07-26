@@ -1,16 +1,15 @@
 const fs = require('fs')
 const papa = require('papaparse')
-let file = fs.readFileSync('./data/trees.csv').toString('utf-8');
-const trees = papa.parse(file, {header: true})
 const polylabel = require('./polylabel')
 
+let file = fs.readFileSync('./data/trees.csv').toString('utf-8');
+const trees = papa.parse(file, {header: true})
 
-
-file = fs.readFileSync('./data/block_group_meta.csv').toString('utf-8');
-const blockGroupMeta = papa.parse(file, {header: true}).data
+file = fs.readFileSync('./data/block_group_names.csv').toString('utf-8');
+const blockGroupNames = papa.parse(file, {header: true}).data
 
 function blockGroupNameFromGeoId(geoId) {
-  return blockGroupMeta.find((bg) => bg.geo_id === geoId).bg_name.toString()
+  return blockGroupNames.find((bg) => bg.geo_id === geoId).bg_name.toString()
 }
 
 function shiftPointFeaturePlacement(pointFeature, up = 0, right = 0) {
@@ -19,13 +18,11 @@ function shiftPointFeaturePlacement(pointFeature, up = 0, right = 0) {
   return pointFeature
 }
 
-
 function blockGroupNamePlacement(blockGroupGeo) {
   let poly = polylabel(blockGroupGeo.geometry.coordinates)
   let geoId = blockGroupGeo.properties.geo_id;
   let bgName = blockGroupNameFromGeoId(geoId)
-  // let center = turf.centerOfMass(blockGroupGeo)
-  // center.properties = {geo_id: geoId, bg_name: bgName}
+
   let bgNamePlacement = {
     type: "Feature",
     properties: {geo_id: geoId, bg_name: bgName},
@@ -47,9 +44,6 @@ function blockGroupNamePlacement(blockGroupGeo) {
     case "510131036022":
       bgNamePlacement = shiftPointFeaturePlacement(bgNamePlacement, 0.005,)
       break
-    // case "510131035012":
-    //   bgNamePlacement = shiftPointFeaturePlacement(bgNamePlacement, 0, -0.0007)
-    //   break
     default:
   }
 
@@ -63,7 +57,6 @@ function preprocessBlockGroups() {
   let placements = blockGroupGeos.features.map(blockGroupNamePlacement)
   let blockGroupNamePlacements = {type: "FeatureCollection", name: "block_group_name_placements", features: placements}
   return {blockGroupGeos, blockGroupNamePlacements}
-  // return blockGroupGeos
 }
 
 const {blockGroupGeos, blockGroupNamePlacements} = preprocessBlockGroups()
@@ -92,4 +85,4 @@ function getBlockGroupTrees(geo_id, authenticated) {
   }
 }
 
-module.exports = {getBlockGroupTrees, blockGroupGeos, blockGroupNamePlacements, blockGroupMeta};
+module.exports = {getBlockGroupTrees, blockGroupGeos, blockGroupNamePlacements, blockGroupNames};

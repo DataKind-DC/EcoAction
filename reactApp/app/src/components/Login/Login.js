@@ -1,7 +1,4 @@
 import React, {useState} from 'react';
-// import {decode} from 'jsonwebtoken'
-// import PropTypes from 'prop-types';
-import './Login.css';
 import {makeStyles} from "@material-ui/core/styles";
 import {Button, Modal} from "@material-ui/core";
 import {apiTokenValid} from "../../Library";
@@ -61,10 +58,8 @@ export default function Login() {
       .then(
         (data) => {
           localStorage.setItem('apiToken', data.token)
-          // localStorage.setItem('time', Date.now().toString().slice(8))
         })
       .catch((err) => {
-        // console.log(err.data.message)
       })
     if (apiTokenValid()) {
       setOpen(false)
@@ -73,14 +68,12 @@ export default function Login() {
 
   const body = (
     <div style={modalStyle} className={classes.paper}>
-      {/*<div className="login-wrapper">*/}
       <h2>Log In</h2>
       <h3>{errorMessage}</h3>
       <form onSubmit={handleSubmit}>
         <label>
           <p>Username</p>
           <input type="text"/>
-          {/*<input type="text" onChange={e => setUserName(e.target.value)} />*/}
         </label>
         <label>
           <p>Password</p>
