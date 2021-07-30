@@ -1,0 +1,12 @@
+.login {
+    background-color: rgba(187, 34, 34, 0.9);
+    color: #1c0909;
+    padding: 0px 0px;
+    font-family: monospace;
+    z-index: auto;
+    position: absolute;
+    top: 0;
+    left: 40px;
+    margin: 0px;
+    border-radius: 4px;
+}

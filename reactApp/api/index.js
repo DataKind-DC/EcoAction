@@ -15,6 +15,12 @@ app.use(cors({
     'http://localhost:3000',
     'https://app-dev.d16bszzooeuewl.amplifyapp.com',
     'https://app-prod.d16bszzooeuewl.amplifyapp.com',
+    'https://dev.arlingtontrees.us',
+    'https://dev.arlingtontrees.us/',
+    'https://arlingtontrees.us',
+    'https://arlingtontrees.us/',
+    'https://www.arlingtontrees.us',
+    'https://www.arlingtontrees.us/',
   ]
 }))
 app.use(bodyParser.urlencoded({extended: false}));

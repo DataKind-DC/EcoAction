@@ -3,7 +3,14 @@ export const MapStyles = {
     id: 'block-groups-line',
     type: 'line',
     paint: {
-      'line-width': 1.2, // TODO: increase thickness as zoom increases
+      'line-width': {
+        'base': 1.2,
+        'stops': [
+          [10.5, 1.2],
+          [13, 1.3],
+          [14, 1.5]
+        ]
+      },
       'line-color': '#0b0d10'
     }
   },
@@ -26,6 +33,15 @@ export const MapStyles = {
       // 'text-variable-anchor': ['center', 'top', 'bottom', 'left', 'right'],
       'text-variable-anchor': ['center'],
       'text-justify': 'auto',
+      'text-size': {
+        'base': 5,
+        'stops': [
+          [10.5, 7],
+          [12, 10],
+          [13, 12],
+          [14, 14]
+        ]
+      },
     }
   },
 

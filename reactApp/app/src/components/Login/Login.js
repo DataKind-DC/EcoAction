@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {makeStyles} from "@material-ui/core/styles";
 import {Button, Modal} from "@material-ui/core";
 import {apiTokenValid} from "../../Library";
+import './Login.css'
 
 const apiUrl = process.env.REACT_APP_API_URI
 
@@ -93,8 +94,8 @@ export default function Login() {
     )
   } else {
     return (
-      <div>
-        <Button variant={"contained"} color={"default"} onClick={() => setOpen(true)}> Log In </Button>
+      <div className="login">
+        <Button variant={"contained"} color={"default"} onClick={() => setOpen(true)}> Login </Button>
         <Modal
           open={open}
           onClose={() => setOpen(false)}

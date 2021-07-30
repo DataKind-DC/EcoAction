@@ -75,6 +75,8 @@ function App() {
       latitude: latitude,
       zoom: zoom,
     })
+    setCurrentBlockGroupName(null)
+    setPopupInfo(null)
   }
 
   useEffect(() => {
@@ -89,6 +91,11 @@ function App() {
       .then((res) => res.json())
       .then((data) => setBlockGroupMeta(data.data))
   }, [])
+
+  // const [zoom, setZoom] = useState(null)
+  // useEffect(() => {
+  //   setZoom(viewport.zoom)
+  // },[viewport])
 
   useEffect(() => {
     if (currentBlockGroupMeta) {
@@ -144,6 +151,7 @@ function App() {
       switch (feature.layer.id) {
         case 'block-groups-fill':
           setCurrentBlockGroupName({bg_name: feature.properties.bg_name})
+          setPopupInfo(null)
           break
         case 'planted-trees':
           const [lng, lat] = event.lngLat
@@ -205,9 +213,9 @@ function App() {
           <NavigationControl style={{top: 72, left: 0, padding: '4px'}}/>
           <ScaleControl style={{bottom: 22, left: 0, padding: '4px'}}/>
         </MapGL>
-        <div className="sidebar">
           <Login/>
-          <Button variant={"contained"} color={"primary"} onClick={arlingtonBoundsViewport}> Reset Zoom </Button>
+        <div className="sidebar">
+          <Button variant={"contained"} color={"primary"} onClick={arlingtonBoundsViewport}> Reset Map </Button>
           <Autocomplete
             value={currentBlockGroupName}
             onChange={(event, newValue) => {
@@ -217,11 +225,12 @@ function App() {
             color="primary"
             options={blockGroupNames}
             getOptionLabel={(option) => option.bg_name}
-            style={{width: 100, padding: 10}}
-            disableClearable={true}
+            style={{width: 110, padding: 0}}
+            disableClearable={false}
             getOptionSelected={(option, value) => option.bg_name === value.bg_name}
             renderInput={(params) => <TextField {...params} label="Block Group" variant="outlined"/>}
           />
+          {/*<h4>{zoom}</h4>*/}
         </div>
       </div>
     </div>
