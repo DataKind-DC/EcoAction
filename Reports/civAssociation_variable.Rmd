@@ -1,0 +1,156 @@
+---
+title: "Civic Associations Variables"
+author: "DataKind Tree Team"
+date: "8/16/2021"
+#always_allow_html: true
+output:
+  pdf_document: default
+  word_document: default
+  html_document:
+    df_print: paged
+geometry: margin=0.5in
+subtitle: EXAMPLE
+---
+
+```{r setup, include=FALSE}
+#This document prints a visual summary of civic association threshold values
+#User can enter variable (% poverty, % not white, canopy cover, trees per area
+#already planted by ecoAction) and rank threshold.
+#Based on Allen's code
+#Need to have civ stat data (with variabl values and ranks) as well as civic
+#associatin geometry
+
+#TO DO: -Remove warning messages when printing maps
+#       -make labels/titles clearly and fix any other visuals
+
+#get libraries
+library(here)
+library(tidyverse)
+library(scales)
+library(gridExtra)
+library(kableExtra)
+library(dplyr)
+library(sf)
+library(units)
+library(ggmap)
+library(flextable)
+library(knitr)
+library(webshot)
+library(ggplot2)
+#library(ggsflabel)
+
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_knit$set(root.dir = here::here())
+```
+
+```{r functions, include = FALSE}
+#setwd('C:/Users/cle9a/Documents/Trees/GitHub_02-07-2021/EcoAction')
+source("src/load_data.R")
+
+#get stats for civic association (including rank) 
+df_ranks <- read.csv('data/civ_stats_wTree.csv')
+#for two variables- recalculate rank so that 1 is civic association of greatest
+#interest and 63 is civic is civic association of least interest
+df_ranks$rank_pct_canopy = 64-df_ranks$rank_pct_canopy
+df_ranks$rank_tree_area = 64-df_ranks$rank_tree_area
+#get and merge geometry
+civ_geo_df <- read_geos_civ_assoc()
+civ <- merge(df_ranks, civ_geo_df, by.x = "geo_id", by.y="geo_id")
+
+#get map background, zoom=13 seems to have a good amount of detail
+b <- st_bbox(civ_geo_df)
+civ2_g <- get_stamenmap(bbox = c(left = b[[1]], bottom = b[[2]], right = b[[3]], top = b[[4]]), zoom = 13)
+
+plot_civVar <- function(varCol) {
+
+    geo_data1 <- merge(df_ranks, civ_geo_df, by.x = "geo_id", by.y="geo_id")
+    geo_data1$Var <- geo_data1[,varCol]
+    #make title using variable and rank
+    mapTitle <- paste('Variable:', varCol)
+    
+    #geo_data1$rank_pct_in_poverty
+    
+    #make map- includes civic associations of interest with geo_id labels
+    ggmap(civ2_g)+
+          geom_sf(data = civ_geo_df$geometry, fill=alpha("blue",0), inherit.aes = FALSE)+
+          geom_sf(data = geo_data1$geometry, aes(fill=geo_data1$Var), inherit.aes = FALSE)+
+        geom_sf_text( data = geo_data1$geometry, inherit.aes = FALSE,
+        aes(label = geo_data1$geo_id),
+        size = 3, color = "white",
+        fontface = "bold"
+    )+ggtitle(mapTitle)
+}
+
+```
+
+
+```{r, results = "asis"}
+#print out geo_id and civic assocation names
+split <- nrow(df_ranks) / 3
+
+purrr::map(
+  1:3,
+  function(n) {
+    df_ranks %>%
+      dplyr::select(GEO_ID = geo_id, Civic_Association = civ_name) %>%
+      dplyr::mutate(
+        Civic_Association = stringr::str_replace(Civic_Association, " - ", "-")
+      ) %>%
+      dplyr::filter(
+        GEO_ID <= n * split,
+        GEO_ID > (n-1) * split
+      )
+  }
+) %>%
+  kableExtra::kbl(booktabs = TRUE) %>%
+  kableExtra::kable_styling(
+    latex_options = c("striped", "hold_position"),
+    font_size = 8
+  )
+```
+
+```{r, fig.width = 7, fig.asp = 1, fig.align = "center", warnings=FALSE, message = FALSE, results = FALSE}
+plot_civVar('pct_in_poverty')
+plot_civVar('pct_canopy')
+plot_civVar('pct_open_plantable')
+plot_civVar('tree_area')
+```
+
+
+# A summary of several variables is shown below.
+
+* pov = % of population below poverty line
+* can = % of area covered by tree canopy
+* plant = % of area that is plantable and open (residential and not covered by canopy)
+* EcoTree = number of trees per m^2 (divide number by 10^5)
+
+```{r, results = "asis"}
+#print out geo_id and civic assocation names
+df_ranks$tree_area5 = df_ranks$tree_area*100000
+split <- nrow(df_ranks)
+
+purrr::map(
+  1,
+  function(n) {
+    df_ranks %>%
+      dplyr::select(GEO_ID = geo_id, Civic_Association = civ_name, pov = pct_in_poverty,
+                    can = pct_canopy, plant = pct_open_plantable, tree = tree_area5) %>%
+      dplyr::mutate(
+        Civic_Association = stringr::str_replace(Civic_Association, " - ", "-"),
+        pov = round(pov,2),
+        can = round(can,2),
+        plant = round(plant,2),
+        tree = round(tree,2)
+      ) %>%
+      dplyr::filter(
+        GEO_ID <= n * split,
+        GEO_ID > (n-1) * split
+      )
+  }
+) %>%
+  kableExtra::kbl(booktabs = TRUE) %>%
+  kableExtra::kable_styling(
+    latex_options = c("striped", "hold_position"),
+    font_size = 8
+  )
+```
